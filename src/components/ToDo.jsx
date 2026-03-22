@@ -1,50 +1,35 @@
-import React, { useState } from 'react';
-import { CheckCircle2, Circle, ListTodo } from 'lucide-react';
+import { ListTodo, Check } from 'lucide-react';
+import { useDesktop } from '../context/DesktopContext';
 
 export default function ToDo() {
-  const [tasks, setTasks] = useState([
-    { id: 1, text: 'Submit weekly attendance', completed: true },
-    { id: 2, text: 'Grade math worksheets', completed: false },
-    { id: 3, text: 'Email parents about field trip', completed: false },
-    { id: 4, text: 'Prepare tomorrow\\'s slides', completed: false },
-  ]);
-
-  const toggleTask = (id) => {
-    setTasks(tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
-  };
+  const { todos, toggleTodo } = useDesktop();
 
   return (
-    <div className="w-full bg-black/20 backdrop-blur-xl border border-white/20 rounded-3xl p-6 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] flex flex-col gap-4 mt-6">
-      <div className="flex items-center gap-3 border-b border-white/10 pb-4">
-        <ListTodo className="w-6 h-6 text-emerald-400" />
-        <h2 className="text-xl font-semibold text-white tracking-wide">To-Do Ledger</h2>
+    <section className="glass rounded-3xl p-6 w-full mt-8">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-on-surface font-semibold text-xs opacity-80 uppercase tracking-widest">To-Do Ledger</h2>
+        <ListTodo className="w-4 h-4 opacity-60 text-white" />
       </div>
-      
-      <div className="flex flex-col gap-2">
-        {tasks.map(task => (
-          <button 
-            key={task.id}
-            onClick={() => toggleTask(task.id)}
-            className={`flex items-center gap-3 p-3 rounded-2xl transition-all text-left w-full group border ${
-              task.completed 
-                ? 'bg-transparent border-transparent' 
-                : 'hover:bg-white/5 border-transparent hover:border-white/10 hover:shadow-lg'
-            }`}
+      <ul className="space-y-3">
+        {todos.map(task => (
+          <li 
+            key={task.id} 
+            onClick={() => toggleTodo(task.id)}
+            className={`flex items-center gap-3 text-sm group cursor-pointer ${task.completed ? 'text-on-surface' : 'text-on-surface-variant'}`}
           >
             {task.completed ? (
-              <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+              <div className="w-4 h-4 rounded border border-primary bg-primary flex items-center justify-center">
+                <Check className="w-3 h-3 text-black" />
+              </div>
             ) : (
-              <Circle className="w-5 h-5 text-slate-400 group-hover:text-emerald-300 transition-colors flex-shrink-0" />
+              <div className="w-4 h-4 rounded border border-outline-variant flex items-center justify-center group-hover:border-primary transition-colors"></div>
             )}
-            
-            <span className={`flex-1 text-sm font-medium transition-all ${
-              task.completed ? 'line-through text-slate-500' : 'text-slate-100'
-            }`}>
+            <span className={task.completed ? 'line-through opacity-50 text-white' : 'text-white'}>
               {task.text}
             </span>
-          </button>
+          </li>
         ))}
-      </div>
-    </div>
+      </ul>
+    </section>
   );
 }

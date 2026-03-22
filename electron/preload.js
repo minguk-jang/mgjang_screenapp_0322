@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
-contextBridge.exposeInMainWorld('electronAPI', {
-  readData: () => ipcRenderer.invoke('read-data'),
-  writeData: (data) => ipcRenderer.invoke('write-data', data)
+contextBridge.exposeInMainWorld('api', {
+  loadData: () => ipcRenderer.invoke('load-data'),
+  saveData: (data) => ipcRenderer.invoke('save-data', data)
 });
