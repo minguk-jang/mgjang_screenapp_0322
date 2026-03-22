@@ -13,7 +13,10 @@ export function DesktopProvider({ children }) {
   const [schedule, setSchedule] = useState([]);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
   const saveTimeoutRef = useRef(null);
+
+  const toggleLock = () => setIsLocked(prev => !prev);
 
   const toggleSettings = () => setIsSettingsOpen(prev => !prev);
 
@@ -53,54 +56,67 @@ export function DesktopProvider({ children }) {
   }, [todos, folders, quickLinks, schedule, userName, clipboardItems, isLoaded]);
 
   const toggleTodo = (id) => {
+    if (isLocked) return;
     setTodos(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
   };
 
   const addTodo = (text) => {
+    if (isLocked) return;
     setTodos(prev => [...prev, { id: 'todo_' + Date.now(), text, completed: false }]);
   };
 
   const removeTodo = (id) => {
+    if (isLocked) return;
     setTodos(prev => prev.filter(t => t.id !== id));
   };
 
   const addClipboardItem = (text) => {
+    if (isLocked) return;
     setClipboardItems(prev => [...prev, { id: 'clip_' + Date.now(), text }]);
   };
 
   const removeClipboardItem = (id) => {
+    if (isLocked) return;
     setClipboardItems(prev => prev.filter(c => c.id !== id));
   };
 
   const toggleFolder = (id) => {
+    if (isLocked) return;
     setActiveFolder(prev => prev === id ? null : id);
   };
 
   const addFolder = (folderData) => {
+    if (isLocked) return;
     setFolders(prev => [...prev, { id: 'folder_' + Date.now(), name: folderData.name, absolutePath: folderData.absolutePath }]);
   };
 
   const removeFolder = (id) => {
+    if (isLocked) return;
     setFolders(prev => prev.filter(f => f.id !== id));
   };
 
   const addQuickLink = (link) => {
+    if (isLocked) return;
     setQuickLinks(prev => [...prev, { ...link, id: 'link_' + Date.now() }]);
   };
 
   const removeQuickLink = (id) => {
+    if (isLocked) return;
     setQuickLinks(prev => prev.filter(l => l.id !== id));
   };
 
   const addScheduleItem = (item) => {
+    if (isLocked) return;
     setSchedule(prev => [...prev, { ...item, id: 'sched_' + Date.now() }]);
   };
 
   const removeScheduleItem = (id) => {
+    if (isLocked) return;
     setSchedule(prev => prev.filter(s => s.id !== id));
   };
 
   const updateSchedule = (newSchedule) => {
+    if (isLocked) return;
     setSchedule(newSchedule);
   };
 
@@ -114,7 +130,8 @@ export function DesktopProvider({ children }) {
       activeFolder, toggleFolder, todos, toggleTodo, addTodo, removeTodo, folders, quickLinks, schedule,
       userName, setUserName, clipboardItems, addClipboardItem, removeClipboardItem,
       isSettingsOpen, toggleSettings, addFolder, removeFolder,
-      addQuickLink, removeQuickLink, addScheduleItem, removeScheduleItem, updateSchedule
+      addQuickLink, removeQuickLink, addScheduleItem, removeScheduleItem, updateSchedule,
+      isLocked, toggleLock
     }}>
       {children}
     </DesktopContext.Provider>
