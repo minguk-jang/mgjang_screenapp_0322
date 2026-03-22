@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Lock, Calendar, CheckSquare, FolderSymlink, LayoutGrid, Settings, BookOpen, MonitorPlay, MousePointer2, ClipboardList } from 'lucide-react';
+import { X, Lock, Calendar, CheckSquare, FolderSymlink, LayoutGrid, Settings, BookOpen, MonitorPlay, MousePointer2, ClipboardList, Link2 } from 'lucide-react';
 import { useDesktop } from '../context/DesktopContext';
 
 const TABS = [
@@ -9,6 +9,7 @@ const TABS = [
   { id: 3, title: '할 일 & 스케줄링', icon: CheckSquare },
   { id: 4, title: '라이브 폴더 뷰어', icon: FolderSymlink },
   { id: 5, title: '우측 패널 메모장', icon: ClipboardList },
+  { id: 6, title: '바탕화면 퀵링크', icon: Link2 },
 ];
 
 export default function GuidelineModal() {
@@ -226,6 +227,34 @@ export default function GuidelineModal() {
                           일회성으로 임시 기록해두어야 할 정보들은 우측 사이드 패널 메모 기능을 적극 활용하세요.<br/><br/>
                           • <strong>우측 패널 배치:</strong> 화면 우측의 사이드 메뉴에 위치하여 바탕화면 공간을 차지하지 않으며 언제든 빠르게 내용을 메모할 수 있습니다.<br/>
                           • <strong>쉬운 인라인 추가 및 삭제:</strong> 복사한 텍스트 등을 붙여넣고 엔터를 치면 즉시 항목이 추가됩니다. 쓰고 나서 지우고 싶을 땐 항목 우측의 '삭제(X)' 아이콘을 누르면 바로 없어져서 깔끔하게 유지할 수 있습니다.
+                        </p>
+                      </div>
+                    </>
+                  )}
+
+                  {/* --- Tab 6 Content --- */}
+                  {activeTab === 6 && (
+                    <>
+                      <div className="p-8 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center gap-6">
+                        <div className="flex flex-col items-center">
+                          <div className="flex gap-2 bg-white/10 p-2 rounded-full border border-white/20 shadow-lg mb-4">
+                             <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center"><Link2 className="w-4 h-4 text-emerald-300"/></div>
+                          </div>
+                          <span className="text-[10px] text-white/50 bg-white/5 px-2 py-1 rounded-full border border-white/10">추가 플로팅 메뉴</span>
+                        </div>
+                        <div className="text-white/40 text-2xl">➔</div>
+                        <div className="relative w-24 h-24 bg-white/5 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center border border-white/10 shadow-xl group">
+                           <X className="w-4 h-4 text-rose-400 absolute -top-2 -right-2 opacity-50 bg-black/50 rounded-full" />
+                           <Link2 className="w-8 h-8 text-emerald-300 mb-2" />
+                           <span className="text-[10px] text-white">업무 메일</span>
+                        </div>
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-white mb-2">바탕화면 퀵링크 바로가기</h3>
+                        <p className="text-white/70 leading-relaxed">
+                          자주 가는 웹사이트나 주요 시스템을 바탕화면에 아이콘으로 꺼내두세요.<br/><br/>
+                          • <strong>쉬운 추가:</strong> 우측 하단 플로팅 메뉴(Floating Action Bar)에서 '웹 링크 추가'를 눌러 이름과 URL을 입력하면 즉시 바탕화면에 나이스(NEIS), 유튜브, 구글 등 바로가기가 생성됩니다.<br/>
+                          • <strong>원클릭 실행 및 삭제:</strong> 생성된 아이콘을 더블클릭하면 PC 기본 브라우저로 열리며, 더 이상 필요 없을 땐 마우스를 올려 나타나는 'X' 버튼을 클릭하여 즉시 지울 수 있습니다.
                         </p>
                       </div>
                     </>
