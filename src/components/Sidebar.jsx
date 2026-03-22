@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { LayoutGrid, Calendar, Power, Lock, X, Plus } from 'lucide-react';
+import { Power, Lock, X, Plus } from 'lucide-react';
 import { useDesktop } from '../context/DesktopContext';
 
 export default function Sidebar() {
   const { userName, clipboardItems, addClipboardItem, removeClipboardItem } = useDesktop();
-  const [activeTab, setActiveTab] = useState('Dashboard');
+
   const [copiedId, setCopiedId] = useState(null);
   const [scratchpadText, setScratchpadText] = useState('');
   const [newClip, setNewClip] = useState('');
@@ -34,34 +34,15 @@ export default function Sidebar() {
           />
           <div>
             <p className="text-white text-sm font-semibold">{userName}</p>
-            <p className="text-white/40 text-[10px] uppercase tracking-tighter">Active Session</p>
+            <p className="text-white/40 text-[10px] uppercase tracking-tighter">활성 세션</p>
           </div>
         </div>
         
-        {/* Workspace Navigation */}
-        <div className="space-y-1">
-          <h3 className="text-white/40 text-[10px] font-bold uppercase mb-2">Workspace</h3>
-          
-          <div 
-            onClick={() => setActiveTab('Dashboard')}
-            className={`${activeTab === 'Dashboard' ? 'bg-white/15 text-white' : 'text-white/40 hover:text-white/80 hover:bg-white/5'} p-3 flex items-center gap-3 transition-all duration-200 rounded-xl cursor-pointer`}
-          >
-            <LayoutGrid className="w-4 h-4 flex-shrink-0" />
-            <span className="text-sm">Dashboard</span>
-          </div>
 
-          <div 
-            onClick={() => setActiveTab('Schedule')}
-            className={`${activeTab === 'Schedule' ? 'bg-white/15 text-white' : 'text-white/40 hover:text-white/80 hover:bg-white/5'} p-3 flex items-center gap-3 transition-all duration-200 rounded-xl cursor-pointer`}
-          >
-            <Calendar className="w-4 h-4 flex-shrink-0" />
-            <span className="text-sm">Schedule</span>
-          </div>
-        </div>
 
         {/* Quick Clipboard */}
         <div className="mt-4 pt-6 border-t border-white/5 flex flex-col flex-1 h-full max-h-[40vh]">
-          <h3 className="text-on-surface font-semibold text-xs opacity-60 uppercase tracking-widest mb-4">Quick Clipboard</h3>
+          <h3 className="text-white/80 font-semibold text-xs opacity-60 uppercase tracking-widest mb-4">빠른 클립보드</h3>
           
           <div className="glass-well rounded-xl p-3 space-y-2 relative overflow-y-auto custom-scrollbar flex-1 mb-3">
             {clipboardItems && clipboardItems.map(item => (
@@ -84,7 +65,7 @@ export default function Sidebar() {
               </div>
             ))}
             {(!clipboardItems || clipboardItems.length === 0) && (
-              <div className="text-white/30 text-xs text-center py-4">Empty clipboard.</div>
+              <div className="text-white/30 text-xs text-center py-4">클립보드가 비어 있습니다.</div>
             )}
           </div>
 
@@ -94,7 +75,7 @@ export default function Sidebar() {
               value={newClip}
               onChange={(e) => setNewClip(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleAddClip()}
-              placeholder="Paste or type new clip..."
+              placeholder="텍스트를 붙여넣거나 입력하세요..."
               className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:border-white/30 pr-8"
             />
             <button 
@@ -108,12 +89,12 @@ export default function Sidebar() {
 
         {/* Scratchpad */}
         <div className="mt-4 border-t border-white/5 pt-4">
-          <h3 className="text-on-surface font-semibold text-xs opacity-60 uppercase tracking-widest mb-4">Scratchpad</h3>
+          <h3 className="text-white/80 font-semibold text-xs opacity-60 uppercase tracking-widest mb-4">메모장</h3>
           <textarea 
             value={scratchpadText}
             onChange={(e) => setScratchpadText(e.target.value)}
             className="w-full h-24 glass-well rounded-xl text-xs text-white p-3 resize-none focus:ring-1 focus:ring-sky-400/50 focus:bg-white/10 transition-colors focus:outline-none placeholder:text-white/20" 
-            placeholder="Type quick notes here..."
+            placeholder="간단한 메모를 입력하세요..."
           />
         </div>
 
@@ -121,11 +102,11 @@ export default function Sidebar() {
         <div className="mt-auto flex justify-between pt-4 border-t border-white/5">
           <button className="flex items-center gap-2 text-white/40 hover:text-red-400 transition-colors">
             <Power className="w-4 h-4" />
-            <span className="text-xs">Power</span>
+            <span className="text-xs">앱 종료</span>
           </button>
           <button className="flex items-center gap-2 text-white/40 hover:text-white transition-colors">
             <Lock className="w-4 h-4" />
-            <span className="text-xs">Lock</span>
+            <span className="text-xs">화면 잠금</span>
           </button>
         </div>
       </div>

@@ -16,7 +16,7 @@ export default function ToDo() {
   return (
     <section className="glass rounded-3xl p-6 w-full mt-8 flex flex-col h-full max-h-[50vh]">
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
-        <h2 className="text-on-surface font-semibold text-xs opacity-80 uppercase tracking-widest">To-Do Ledger</h2>
+        <h2 className="text-white/80 font-semibold text-xs opacity-80 uppercase tracking-widest">오늘 할 일</h2>
         <ListTodo className="w-4 h-4 opacity-60 text-white" />
       </div>
       <ul className="space-y-3 overflow-y-auto custom-scrollbar flex-1 mb-4 pr-2">
@@ -24,7 +24,7 @@ export default function ToDo() {
           <li 
             key={task.id} 
             onClick={() => toggleTodo(task.id)}
-            className={`flex items-center gap-3 text-sm group cursor-pointer ${task.completed ? 'text-on-surface' : 'text-on-surface-variant'}`}
+            className={`flex items-center gap-3 text-sm group cursor-pointer ${task.completed ? 'text-white/80' : 'text-white/60'}`}
           >
             {task.completed ? (
               <div className="w-4 h-4 rounded border border-primary bg-primary flex items-center justify-center flex-shrink-0">
@@ -54,7 +54,7 @@ export default function ToDo() {
           value={newTodo}
           onChange={(e) => setNewTodo(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Type task and press Enter..." 
+          placeholder="할 일을 입력하고 Enter 키를 누르세요..." 
           className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 pl-10 text-sm text-white placeholder-white/30 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all shadow-inner"
         />
         <Plus className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />

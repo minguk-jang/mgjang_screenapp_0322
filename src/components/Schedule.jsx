@@ -17,7 +17,7 @@ export default function Schedule() {
   return (
     <section className="glass rounded-3xl p-6 w-full shadow-lg border border-white/5 flex flex-col max-h-[50vh]">
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
-        <h2 className="text-white/80 font-semibold text-xs opacity-80 uppercase tracking-widest">Daily Schedule</h2>
+        <h2 className="text-white/80 font-semibold text-xs opacity-80 uppercase tracking-widest">일일 일정</h2>
         <Calendar className="w-4 h-4 text-white/60" />
       </div>
       <div className="space-y-4 pt-2 overflow-y-auto custom-scrollbar flex-1 pr-2">
@@ -45,7 +45,7 @@ export default function Schedule() {
             </div>
           ))
         ) : (
-          <div className="text-white/40 text-xs text-center py-4 italic">No schedule items yet.</div>
+          <div className="text-white/40 text-xs text-center py-4 italic">예정된 일정이 없습니다.</div>
         )}
       </div>
 
@@ -56,12 +56,12 @@ export default function Schedule() {
             onClick={() => setShowAddForm(true)}
             className="w-full flex items-center justify-center gap-2 text-xs font-medium text-white/50 hover:text-white/90 transition-all py-2 rounded-xl hover:bg-white/5"
           >
-            <Plus className="w-4 h-4" /> Add Class
+            <Plus className="w-4 h-4" /> 일정 추가
           </button>
         ) : (
           <div className="bg-black/20 rounded-xl p-3 border border-white/5 space-y-2 animate-in fade-in slide-in-from-top-2 duration-200 shadow-inner">
             <div className="flex justify-between items-center mb-1 px-1">
-              <span className="text-[10px] uppercase font-semibold text-white/50 tracking-wider">New Class</span>
+              <span className="text-[10px] uppercase font-semibold text-white/50 tracking-wider">새 일정</span>
               <button 
                 onClick={() => setShowAddForm(false)} 
                 className="text-white/40 hover:text-white/80 transition-colors p-1 rounded hover:bg-white/10 active:scale-95"
@@ -71,7 +71,7 @@ export default function Schedule() {
             </div>
             <div className="grid grid-cols-2 gap-2">
               <input 
-                type="text" placeholder="Period (e.g. 1st)" 
+                type="text" placeholder="교시 (예: 1교시)" 
                 value={newClass.period} onChange={e => setNewClass({...newClass, period: e.target.value})} 
                 className="bg-white/5 text-xs text-white px-3 py-2 rounded-lg border border-white/5 focus:outline-none focus:border-white/20 w-full placeholder-white/30" 
               />
@@ -82,13 +82,13 @@ export default function Schedule() {
               />
             </div>
             <input 
-              type="text" placeholder="Subject" 
+              type="text" placeholder="과목/일정명" 
               value={newClass.subject} onChange={e => setNewClass({...newClass, subject: e.target.value})} 
               className="bg-white/5 text-xs text-white px-3 py-2 rounded-lg border border-white/5 focus:outline-none focus:border-white/20 w-full placeholder-white/30" 
             />
             <div className="flex gap-2">
                <input 
-                 type="text" placeholder="Room" 
+                 type="text" placeholder="장소" 
                  value={newClass.room} onChange={e => setNewClass({...newClass, room: e.target.value})} 
                  onKeyDown={(e) => e.key === 'Enter' && handleAddClass()}
                  className="bg-white/5 text-xs text-white px-3 py-2 rounded-lg border border-white/5 focus:outline-none focus:border-white/20 flex-1 placeholder-white/30" 

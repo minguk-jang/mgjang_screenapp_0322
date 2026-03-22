@@ -5,7 +5,6 @@
 
 import { 
   Settings, 
-  User, 
   Calendar, 
   LayoutGrid, 
   Power, 
@@ -14,7 +13,6 @@ import {
 import { motion } from 'motion/react';
 import ToDo from './components/ToDo';
 import DesktopSurface from './components/DesktopSurface';
-import BottomDock from './components/BottomDock';
 import Sidebar from './components/Sidebar';
 import SettingsModal from './components/SettingsModal';
 import Schedule from './components/Schedule';
@@ -25,16 +23,12 @@ const TopNav = () => {
   const { toggleSettings } = useDesktop();
   return (
     <header className="fixed top-0 left-0 w-full h-16 px-12 flex justify-between items-center bg-black/50 backdrop-blur-3xl z-40">
-      <div className="text-xl font-bold text-white tracking-tighter">Ethereal Desktop</div>
+      <div className="text-xl font-bold text-white tracking-tighter">쭈의 일터</div>
       <nav className="flex gap-8">
-        <a className="text-white border-b-2 border-white/50 pb-1" href="#">Files</a>
-        <a className="text-white/60 hover:text-white transition-colors" href="#">Widgets</a>
-        <a className="text-white/60 hover:text-white transition-colors" href="#">Sync</a>
-        <a className="text-white/60 hover:text-white transition-colors" href="#">History</a>
+        <a className="text-white border-b-2 border-white/50 pb-1" href="#">Workspace</a>
       </nav>
       <div className="flex items-center gap-6">
         <Settings onClick={toggleSettings} className="w-5 h-5 text-white/80 cursor-pointer hover:bg-white/10 rounded-lg transition-all" />
-        <User className="w-5 h-5 text-white/80 cursor-pointer hover:bg-white/10 rounded-lg transition-all" />
       </div>
     </header>
   );
@@ -78,13 +72,6 @@ export default function App() {
         </motion.div>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.4 }}
-      >
-        <BottomDock />
-      </motion.div>
 
       <SettingsModal />
     </main>

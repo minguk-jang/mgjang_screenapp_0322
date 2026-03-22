@@ -3,8 +3,8 @@ import { useDesktop } from '../context/DesktopContext';
 import { Folder, FolderOpen, FileText, Image as ImageIcon, FileSpreadsheet, File, FolderPlus, X, Link2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-const DesktopIcon = ({ icon: Icon, label, color = "text-white/90", className = "", onClick, onRemove }) => (
-  <div onClick={onClick} className={`group relative cursor-pointer flex flex-col items-center gap-2 ${className}`}>
+const DesktopIcon = ({ icon: Icon, label, color = "text-white/90", className = "", onClick, onDoubleClick, onRemove }) => (
+  <div onClick={onClick} onDoubleClick={onDoubleClick} className={`group relative cursor-pointer flex flex-col items-center gap-2 ${className}`}>
     {onRemove && (
       <button 
         onClick={(e) => { e.stopPropagation(); onRemove(); }}
@@ -13,7 +13,7 @@ const DesktopIcon = ({ icon: Icon, label, color = "text-white/90", className = "
         <X className="w-3 h-3" />
       </button>
     )}
-    <div className="w-20 h-20 bg-primary/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/10 group-hover:scale-105 transition-transform shadow-xl">
+    <div className="w-20 h-20 glass rounded-2xl flex items-center justify-center border border-white/10 group-hover:scale-105 transition-transform shadow-xl">
       <Icon className={`w-10 h-10 ${color}`} />
     </div>
     <span className="text-white drop-shadow-md font-medium text-sm mt-1">{label}</span>
@@ -88,6 +88,16 @@ export default function DesktopSurface() {
               label={folder.name} 
               color={activeFolder === folder.id ? "text-sky-300" : "text-white/90"}
               onClick={() => toggleFolder(folder.id)} 
+              onDoubleClick={async (e) => {
+                e.stopPropagation();
+                if (window.api && window.api.openItem) {
+                  const success = await window.api.openItem(folder.absolutePath, false);
+                  if (!success) {
+                    setErrorFile(folder.id);
+                    setTimeout(() => setErrorFile(null), 1500);
+                  }
+                }
+              }}
               onRemove={() => removeFolder(folder.id)}
             />
           ))}
@@ -132,12 +142,12 @@ export default function DesktopSurface() {
                     {file.isDirectory ? <Folder className="w-10 h-10 text-sky-400" /> : getFileIcon(file.type)}
                   </div>
                   <span className={`text-xs drop-shadow-md w-20 text-center truncate ${errorFile === file.id ? 'text-red-300 font-bold' : 'text-white/80 group-hover:text-white'}`}>
-                    {errorFile === file.id ? "Not Found" : file.name}
+                    {errorFile === file.id ? "찾을 수 없음" : file.name}
                   </span>
                 </div>
               ))}
               {currentFolderContents.length === 0 && (
-                <div className="w-full text-center text-white/40 italic mt-4">Empty Folder</div>
+                <div className="w-full text-center text-white/40 italic mt-4">빈 폴더</div>
               )}
             </div>
           )}
@@ -148,10 +158,10 @@ export default function DesktopSurface() {
       <div className="absolute bottom-10 right-10 flex flex-col items-end gap-4 z-50">
         {showAddWebLink && (
           <div className="glass rounded-2xl p-4 shadow-2xl border border-white/10 mb-2 w-64 animate-in fade-in slide-in-from-bottom-2 duration-200">
-            <h3 className="text-white/80 text-xs font-semibold uppercase tracking-wider mb-3">Add Web Link</h3>
+            <h3 className="text-white/80 text-xs font-semibold uppercase tracking-wider mb-3">웹 링크 추가</h3>
             <div className="space-y-3">
               <input 
-                type="text" placeholder="Name (e.g., Notion)" 
+                type="text" placeholder="이름 (예: Notion)" 
                 value={newWebLink.name} onChange={e => setNewWebLink({...newWebLink, name: e.target.value})}
                 autoFocus
                 className="w-full bg-black/20 border border-white/5 rounded-xl px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-white/30 transition-colors"
@@ -166,7 +176,7 @@ export default function DesktopSurface() {
                 onClick={handleAddWebLink}
                 className="w-full bg-white/10 hover:bg-white/20 text-white text-sm py-2 rounded-xl transition-all font-medium mt-1 active:scale-95"
               >
-                Add Link
+                링크 추가
               </button>
             </div>
           </div>
@@ -178,14 +188,14 @@ export default function DesktopSurface() {
             className="flex items-center gap-2 px-4 py-3 rounded-full transition-all duration-300 text-sm font-medium bg-white/5 text-white/70 hover:bg-white/20 hover:text-white group"
           >
             <Link2 className="w-5 h-5" /> 
-            <span className="hidden group-hover:block transition-all pr-1">Add Web Link</span>
+            <span className="hidden group-hover:block transition-all pr-1">웹 링크 추가</span>
           </button>
           <button 
             onClick={handleLinkFolder}
             className="flex items-center gap-2 px-4 py-3 rounded-full transition-all duration-300 text-sm font-medium bg-white/5 text-white/70 hover:bg-white/20 hover:text-white group"
           >
             <FolderPlus className="w-5 h-5" /> 
-            <span className="hidden group-hover:block transition-all pr-1">Link Folder</span>
+            <span className="hidden group-hover:block transition-all pr-1">폴더 연결</span>
           </button>
         </div>
       </div>
