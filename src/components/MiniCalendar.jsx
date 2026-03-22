@@ -32,7 +32,7 @@ export default function MiniCalendar() {
   const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
 
   return (
-    <div className="glass rounded-3xl p-5 w-64 shadow-xl border border-white/5 backdrop-blur-md">
+    <div className="w-full glass rounded-3xl p-5 shadow-xl border border-white/5 backdrop-blur-md">
       {/* Month & Year Header */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-white/90 font-bold text-sm tracking-widest">

@@ -22,7 +22,7 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="w-72 flex flex-col gap-6">
+    <aside className="w-full flex flex-col gap-6">
       <div className="glass rounded-3xl p-6 shadow-2xl flex flex-col gap-6">
         {/* User Profile */}
         <div className="flex items-center gap-3 mb-2">

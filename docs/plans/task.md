@@ -1,5 +1,7 @@
-| Task | Status | Output |
-| :--- | :--- | :--- |
-| Task 1: Implement Dynamic Directory Reading (Main Process) | done | - |
-| Task 2: Update State Management (Desktop Context) | done | - |
-| Task 3: Refactor UI for Live Sync (Desktop Surface) | done | - |
+| Task | Description | Status |
+| --- | --- | --- |
+| Task 1 | Update DesktopContext for Weekly Schedule | done |
+| Task 2 | Implement MiniCalendar Component | done |
+| Task 3 | Top Navigation Date & Schedule Banner | done |
+| Task 4 | Weekly Schedule Settings View | done |
+| Task 5 | Refactor Schedule Widget | done |

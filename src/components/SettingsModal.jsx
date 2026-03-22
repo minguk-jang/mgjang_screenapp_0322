@@ -27,6 +27,14 @@ export default function SettingsModal() {
     updateWeeklySchedule(tempSchedule);
   };
 
+  const handlePeriodChange = (periodIndex, field, value) => {
+    setTempSchedule(prev => {
+      const newPeriods = [...(prev.periods || [])];
+      newPeriods[periodIndex] = { ...newPeriods[periodIndex], [field]: value };
+      return { ...prev, periods: newPeriods };
+    });
+  };
+
   const handleCellChange = (dayIndex, periodIndex, value) => {
     setTempSchedule(prev => {
       const newGrid = { ...prev.grid };
@@ -113,16 +121,26 @@ export default function SettingsModal() {
                   <table className="w-full text-xs text-left border-collapse">
                     <thead className="sticky top-0 bg-black/80 backdrop-blur-md z-10 w-full">
                       <tr>
-                        <th className="p-2 border-b border-white/10 text-center w-14 text-white/50 font-medium">교시</th>
+                        <th className="p-2 border-b border-white/10 text-center w-20 text-white/50 font-medium">교시</th>
                         {['월', '화', '수', '목', '금'].map(d => <th key={d} className="p-2 border-b border-white/10 text-center text-white/70 font-medium">{d}</th>)}
                       </tr>
                     </thead>
                     <tbody>
                       {tempSchedule?.periods?.map((period, pIdx) => (
                         <tr key={pIdx} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors">
-                          <td className="p-2 text-center border-r border-white/5 text-white/50 font-medium">
-                            {period.name}
-                            <div className="text-[9px] text-white/30 truncate">{period.time.split(/~|-/)[0].trim()}</div>
+                          <td className="p-1.5 text-center border-r border-white/5 bg-black/20">
+                            <input 
+                              type="text" 
+                              value={period.name || ''}
+                              onChange={e => handlePeriodChange(pIdx, 'name', e.target.value)}
+                              className="w-full bg-transparent text-white/70 font-medium text-center text-xs px-1 py-0.5 focus:outline-none focus:bg-white/10 rounded-md transition-all placeholder:text-white/30 truncate"
+                            />
+                            <input 
+                              type="text" 
+                              value={period.time || ''}
+                              onChange={e => handlePeriodChange(pIdx, 'time', e.target.value)}
+                              className="w-full bg-transparent text-white/40 text-center text-[9px] mt-0.5 px-0.5 py-0.5 focus:outline-none focus:bg-white/10 rounded-md transition-all placeholder:text-white/20 truncate"
+                            />
                           </td>
                           {[1,2,3,4,5].map(dIdx => {
                             const cell = tempSchedule.grid[dIdx]?.[pIdx] || { subject: '' };
