@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useDesktop } from '../context/DesktopContext';
 
 export default function MiniCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const { toggleCalendarTodo } = useDesktop();
 
   // Update date naturally if the user leaves the app open across midnight
   useEffect(() => {
@@ -71,8 +73,15 @@ export default function MiniCalendar() {
           return (
             <div 
               key={idx}
+              onClick={() => {
+                if (day) {
+                  const mm = String(month + 1).padStart(2, '0');
+                  const dd = String(day).padStart(2, '0');
+                  toggleCalendarTodo(`${year}-${mm}-${dd}`);
+                }
+              }}
               className={`flex items-center justify-center h-8 rounded-lg text-xs transition-all ${
-                day ? (isToday ? dayStyle : `${dayStyle} hover:bg-white/10`) : ''
+                day ? `cursor-pointer ${isToday ? dayStyle : `${dayStyle} hover:bg-white/10`}` : ''
               }`}
             >
               {day || ''}

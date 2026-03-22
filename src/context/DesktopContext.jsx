@@ -11,6 +11,7 @@ export function DesktopProvider({ children }) {
   const [folders, setFolders] = useState([]);
   const [quickLinks, setQuickLinks] = useState([]);
   const [schedule, setSchedule] = useState([]);
+  const [appZoom, setAppZoom] = useState(1);
   const defaultWeeklySchedule = {
     periods: [
       { name: "1교시", time: "09:00~09:40" },
@@ -33,6 +34,8 @@ export function DesktopProvider({ children }) {
 
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isCalendarTodoOpen, setIsCalendarTodoOpen] = useState(false);
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
   const saveTimeoutRef = useRef(null);
@@ -40,6 +43,11 @@ export function DesktopProvider({ children }) {
   const toggleLock = () => setIsLocked(prev => !prev);
 
   const toggleSettings = () => setIsSettingsOpen(prev => !prev);
+  
+  const toggleCalendarTodo = (date = "") => {
+    if (date) setSelectedCalendarDate(date);
+    setIsCalendarTodoOpen(prev => !prev);
+  };
 
   useEffect(() => {
     const initializeData = async () => {
@@ -48,15 +56,23 @@ export function DesktopProvider({ children }) {
         setTodos(data.todos || []);
         setFolders(data.folders || []);
         setQuickLinks(data.quickLinks || []);
-        const loadedWeekly = data.weeklySchedule || defaultWeeklySchedule;
+        let loadedWeekly = defaultWeeklySchedule;
+        if (data.weeklySchedule && data.weeklySchedule.periods && data.weeklySchedule.periods.length > 0) {
+          const hasAnySubject = Object.values(data.weeklySchedule.grid || {}).some(day => 
+            Array.isArray(day) && day.some(cell => cell && cell.subject && cell.subject.trim() !== '')
+          );
+          if (hasAnySubject || data.weeklySchedule.periods.length > 6) {
+            loadedWeekly = data.weeklySchedule;
+          }
+        }
         setWeeklySchedule(loadedWeekly);
         
         const todayStr = new Date().toDateString();
         // If it's a new day, load from weekly template
         if (data.lastScheduleDate !== todayStr) {
           const todayIdx = new Date().getDay();
-          const baseGrid = loadedWeekly.grid[todayIdx] || [];
-          const periods = loadedWeekly.periods;
+          const baseGrid = loadedWeekly?.grid?.[todayIdx] || [];
+          const periods = loadedWeekly?.periods || [];
           
           const newTodaySchedule = baseGrid.map((cell, idx) => {
              if (!cell || !cell.subject || cell.subject.trim() === '') return null;
@@ -72,6 +88,7 @@ export function DesktopProvider({ children }) {
         
         setUserName(data.userName || "System Admin");
         setClipboardItems(data.clipboardItems || []);
+        setAppZoom(data.appZoom || 1);
       }
       setIsLoaded(true);
     };
@@ -87,7 +104,7 @@ export function DesktopProvider({ children }) {
 
     saveTimeoutRef.current = setTimeout(async () => {
       try {
-        await window.api.saveData({ todos, folders, quickLinks, schedule, weeklySchedule, userName, clipboardItems, lastScheduleDate });
+        await window.api.saveData({ todos, folders, quickLinks, schedule, weeklySchedule, userName, clipboardItems, lastScheduleDate, appZoom });
         console.log('Data saved successfully');
       } catch (err) {
         console.error('Failed to save data:', err);
@@ -95,16 +112,17 @@ export function DesktopProvider({ children }) {
     }, 1000);
 
     return () => clearTimeout(saveTimeoutRef.current);
-  }, [todos, folders, quickLinks, schedule, weeklySchedule, userName, clipboardItems, lastScheduleDate, isLoaded]);
+  }, [todos, folders, quickLinks, schedule, weeklySchedule, userName, clipboardItems, lastScheduleDate, appZoom, isLoaded]);
 
   const toggleTodo = (id) => {
     if (isLocked) return;
     setTodos(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
   };
 
-  const addTodo = (text) => {
+  const addTodo = (text, customDate = "") => {
     if (isLocked) return;
-    setTodos(prev => [...prev, { id: 'todo_' + Date.now(), text, completed: false }]);
+    const dateToUse = customDate || new Date().toLocaleDateString('en-CA'); // Gets YYYY-MM-DD format logically
+    setTodos(prev => [...prev, { id: 'todo_' + Date.now(), text, completed: false, date: dateToUse }]);
   };
 
   const removeTodo = (id) => {
@@ -176,10 +194,11 @@ export function DesktopProvider({ children }) {
     <DesktopContext.Provider value={{ 
       activeFolder, toggleFolder, todos, toggleTodo, addTodo, removeTodo, folders, quickLinks, schedule,
       userName, setUserName, clipboardItems, addClipboardItem, removeClipboardItem,
-      isSettingsOpen, toggleSettings, addFolder, removeFolder,
+      isSettingsOpen, toggleSettings, isCalendarTodoOpen, toggleCalendarTodo, selectedCalendarDate, addFolder, removeFolder,
       addQuickLink, removeQuickLink, addScheduleItem, removeScheduleItem, updateSchedule,
       weeklySchedule, updateWeeklySchedule,
-      isLocked, toggleLock
+      isLocked, toggleLock,
+      appZoom, setAppZoom
     }}>
       {children}
     </DesktopContext.Provider>

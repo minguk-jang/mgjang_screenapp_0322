@@ -1,7 +1,9 @@
-| Task | Description | Status |
-| --- | --- | --- |
-| Task 1 | Update DesktopContext for Weekly Schedule | done |
-| Task 2 | Implement MiniCalendar Component | done |
-| Task 3 | Top Navigation Date & Schedule Banner | done |
-| Task 4 | Weekly Schedule Settings View | done |
-| Task 5 | Refactor Schedule Widget | done |
+# Calendar Todo Modal Implementation Tracker
+
+| Task | Status | Description |
+|---|---|---|
+| 1 | done | Update DesktopContext.jsx to support calendar todos state and modal visibility. |
+| 2 | done | Modify Todo.jsx to filter items by date <= today. |
+| 3 | done | Create CalendarTodoModal.jsx component. |
+| 4 | done | Modify MiniCalendar.jsx to open the modal on date click. |
+| 5 | done | Include CalendarTodoModal in App. |

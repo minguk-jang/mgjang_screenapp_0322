@@ -16,6 +16,7 @@ import ToDo from './components/ToDo';
 import DesktopSurface from './components/DesktopSurface';
 import Sidebar from './components/Sidebar';
 import SettingsModal from './components/SettingsModal';
+import CalendarTodoModal from './components/CalendarTodoModal';
 import Schedule from './components/Schedule';
 import MiniCalendar from './components/MiniCalendar';
 import { useDesktop } from './context/DesktopContext';
@@ -72,8 +73,30 @@ const TopNav = () => {
 };
 
 export default function App() {
+  const { appZoom } = useDesktop();
+
   return (
-    <main className="relative w-full h-screen overflow-hidden font-sans">
+    <>
+      <style>{`
+        :root {
+          --font-scale: ${appZoom || 1};
+        }
+        .text-xs { font-size: calc(0.75rem * var(--font-scale)) !important; line-height: calc(1rem * var(--font-scale)) !important; }
+        .text-sm { font-size: calc(0.875rem * var(--font-scale)) !important; line-height: calc(1.25rem * var(--font-scale)) !important; }
+        .text-base { font-size: calc(1rem * var(--font-scale)) !important; line-height: calc(1.5rem * var(--font-scale)) !important; }
+        .text-lg { font-size: calc(1.125rem * var(--font-scale)) !important; line-height: calc(1.75rem * var(--font-scale)) !important; }
+        .text-xl { font-size: calc(1.25rem * var(--font-scale)) !important; line-height: calc(1.75rem * var(--font-scale)) !important; }
+        .text-2xl { font-size: calc(1.5rem * var(--font-scale)) !important; line-height: calc(2rem * var(--font-scale)) !important; }
+        .text-3xl { font-size: calc(1.875rem * var(--font-scale)) !important; line-height: calc(2.25rem * var(--font-scale)) !important; }
+        .text-4xl { font-size: calc(2.25rem * var(--font-scale)) !important; line-height: calc(2.5rem * var(--font-scale)) !important; }
+        
+        /* Custom arbitrary pixel sizes used in the app */
+        .text-\\[9px\\] { font-size: calc(9px * var(--font-scale)) !important; }
+        .text-\\[10px\\] { font-size: calc(10px * var(--font-scale)) !important; }
+        .text-\\[11px\\] { font-size: calc(11px * var(--font-scale)) !important; }
+        .text-\\[13px\\] { font-size: calc(13px * var(--font-scale)) !important; }
+      `}</style>
+      <main className="relative w-full h-screen overflow-hidden font-sans">
       {/* Background Wallpaper */}
       <div 
         className="absolute inset-0 bg-cover bg-center z-0"
@@ -112,6 +135,8 @@ export default function App() {
 
 
       <SettingsModal />
+      <CalendarTodoModal />
     </main>
+    </>
   );
 }
