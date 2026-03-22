@@ -56,7 +56,7 @@ const TopNav = () => {
 
   return (
     <header className="fixed top-0 left-0 w-full h-16 px-12 flex justify-between items-center bg-black/40 backdrop-blur-2xl border-b border-white/5 z-40">
-      <div className="text-xl font-bold text-white tracking-tighter drop-shadow-md">쭈의 일터</div>
+      <div className="text-xl font-bold text-white tracking-tighter drop-shadow-md">JJOO's Workspace</div>
       <nav className="flex items-center gap-4">
         <span className="text-white/90 text-sm font-medium tracking-wider bg-white/5 px-4 py-1.5 rounded-full border border-white/10 shadow-inner">
           {dateStr}
