@@ -1,12 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useDesktop } from '../context/DesktopContext';
-import { X, UserCog, Power, Calendar } from 'lucide-react';
+import { X, UserCog, Power, Calendar, Monitor, ZoomIn, ZoomOut, CheckCircle } from 'lucide-react';
 
 export default function SettingsModal() {
-  const { isSettingsOpen, toggleSettings, userName, setUserName, weeklySchedule, updateWeeklySchedule } = useDesktop();
+  const { isSettingsOpen, toggleSettings, userName, setUserName, weeklySchedule, updateWeeklySchedule, appZoom, setAppZoom } = useDesktop();
   const [activeTab, setActiveTab] = useState('Profile');
   const [tempUserName, setTempUserName] = useState(userName || "System Admin");
   const [tempSchedule, setTempSchedule] = useState(weeklySchedule);
+  const [toastMessage, setToastMessage] = useState('');
+
+  const showSuccessToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage('');
+    }, 2000);
+  };
 
   useEffect(() => {
     setTempUserName(userName);
@@ -20,11 +28,12 @@ export default function SettingsModal() {
 
   const handleSaveProfile = () => {
     if (tempUserName.trim()) setUserName(tempUserName.trim());
-    toggleSettings();
+    showSuccessToast("프로필이 저장되었습니다.");
   };
 
   const handleSaveSchedule = () => {
     updateWeeklySchedule(tempSchedule);
+    showSuccessToast("주간 시간표가 저장되었습니다.");
   };
 
   const handlePeriodChange = (periodIndex, field, value) => {
@@ -37,7 +46,7 @@ export default function SettingsModal() {
 
   const handleCellChange = (dayIndex, periodIndex, value) => {
     setTempSchedule(prev => {
-      const newGrid = { ...prev.grid };
+      const newGrid = { ...(prev?.grid || {}) };
       const dayData = [...(newGrid[dayIndex] || [])];
       
       while(dayData.length <= periodIndex) dayData.push({ subject: '', room: '' });
@@ -57,6 +66,12 @@ export default function SettingsModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xl p-4 transition-all">
+      {toastMessage && (
+        <div className="absolute top-10 left-1/2 -translate-x-1/2 bg-sky-500/90 text-white px-6 py-3 rounded-2xl shadow-2xl backdrop-blur flex items-center gap-3 animate-in fade-in slide-in-from-top-5 duration-300 z-50 border border-sky-400">
+          <CheckCircle className="w-5 h-5" />
+          <span className="font-semibold text-sm">{toastMessage}</span>
+        </div>
+      )}
       <div className="glass w-full max-w-2xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/10 bg-white/5">
@@ -82,6 +97,12 @@ export default function SettingsModal() {
               <Calendar className="w-4 h-4" /> 시간표
             </button>
             <button 
+              onClick={() => setActiveTab('Display')}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${activeTab === 'Display' ? 'bg-white/20 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}
+            >
+              <Monitor className="w-4 h-4" /> 폰트 크기
+            </button>
+            <button 
               onClick={() => setActiveTab('System')}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${activeTab === 'System' ? 'bg-white/20 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}
             >
@@ -102,7 +123,7 @@ export default function SettingsModal() {
                   />
                   <p className="text-[10px] text-white/40">이 이름은 우측 화면의 사이드바 상단에 표시됩니다.</p>
                 </div>
-                <button onClick={handleSaveProfile} className="bg-sky-500/20 hover:bg-sky-500/40 text-sky-100 font-medium px-6 py-2 rounded-xl transition-all">
+                <button onClick={handleSaveProfile} className="bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-all active:scale-95 shadow-[0_4px_14px_0_rgba(14,165,233,0.39)]">
                   저장
                 </button>
               </div>
@@ -112,7 +133,7 @@ export default function SettingsModal() {
               <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300 h-full flex flex-col">
                 <div className="flex justify-between items-center mb-1">
                   <h3 className="text-lg font-semibold text-white">주간 시간표 관리</h3>
-                  <button onClick={handleSaveSchedule} className="bg-sky-500 hover:bg-sky-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all active:scale-95 shadow-lg">
+                  <button onClick={handleSaveSchedule} className="bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-all active:scale-95 shadow-[0_4px_14px_0_rgba(14,165,233,0.39)]">
                     저장하기
                   </button>
                 </div>
@@ -143,7 +164,7 @@ export default function SettingsModal() {
                             />
                           </td>
                           {[1,2,3,4,5].map(dIdx => {
-                            const cell = tempSchedule.grid[dIdx]?.[pIdx] || { subject: '' };
+                            const cell = tempSchedule?.grid?.[dIdx]?.[pIdx] || { subject: '' };
                             return (
                               <td key={dIdx} className="p-1 border-r border-white/5 last:border-0 relative">
                                 <input 
@@ -164,6 +185,57 @@ export default function SettingsModal() {
               </div>
             )}
 
+            {activeTab === 'Display' && (
+              <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <h3 className="text-lg font-semibold text-white">폰트 크기 설정</h3>
+                
+                <div className="space-y-4 bg-black/30 border border-white/10 rounded-xl p-5 shadow-inner">
+                  <div>
+                    <label className="text-sm font-medium text-white/80">전체 폰트 크기 비율</label>
+                    <p className="text-xs text-white/40 mt-1">앱 내 모든 텍스트의 크기를 조정합니다. 배율에 따라 아이콘이나 프레임 크기는 유지되며 글씨만 커집니다.</p>
+                  </div>
+                  
+                  <div className="flex items-center gap-6 bg-black/40 p-4 rounded-xl border border-white/5">
+                    <button 
+                      onClick={() => setAppZoom(Math.max(0.5, appZoom - 0.1))}
+                      className="p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-white hover:text-sky-300 active:scale-95"
+                    >
+                      <ZoomOut className="w-6 h-6" />
+                    </button>
+                    
+                    <div className="flex-1 text-center">
+                      <div className="text-4xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white to-white/50">
+                        {Math.round(appZoom * 100)}%
+                      </div>
+                    </div>
+                    
+                    <button 
+                      onClick={() => setAppZoom(Math.min(2.0, appZoom + 0.1))}
+                      className="p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-white hover:text-sky-300 active:scale-95"
+                    >
+                      <ZoomIn className="w-6 h-6" />
+                    </button>
+                  </div>
+
+                  <div className="flex justify-center gap-2 mt-4">
+                    {[0.8, 0.9, 1.0, 1.1, 1.2].map(zoomValue => (
+                      <button
+                        key={zoomValue}
+                        onClick={() => setAppZoom(zoomValue)}
+                        className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+                          appZoom === zoomValue 
+                            ? 'bg-sky-500 text-white shadow-[0_4px_14px_0_rgba(14,165,233,0.39)]' 
+                            : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white border border-white/5'
+                        }`}
+                      >
+                        {Math.round(zoomValue * 100)}%
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {activeTab === 'System' && (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300 h-full flex flex-col">
                 <div>
@@ -172,7 +244,7 @@ export default function SettingsModal() {
                 </div>
                 <div className="mt-auto bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex items-center justify-between">
                   <span className="text-sm text-red-200">앱 완전히 종료하기</span>
-                  <button onClick={handleQuit} className="bg-red-500 hover:bg-red-600 text-white font-bold px-4 py-2 rounded-lg transition-all active:scale-95 shadow-lg">
+                  <button onClick={handleQuit} className="bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-all active:scale-95 shadow-[0_4px_14px_0_rgba(239,68,68,0.39)]">
                     종료
                   </button>
                 </div>

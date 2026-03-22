@@ -6,6 +6,10 @@ export default function ToDo() {
   const { todos, toggleTodo, addTodo, removeTodo, isLocked } = useDesktop();
   const [newTodo, setNewTodo] = useState('');
 
+  const todayStr = new Date().toLocaleDateString('en-CA');
+  // Filter todos: show if it has no date (legacy) or if its date is today or earlier
+  const displayTodos = todos.filter(t => !t.date || t.date <= todayStr);
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && newTodo.trim() !== '') {
       addTodo(newTodo.trim());
@@ -20,7 +24,7 @@ export default function ToDo() {
         <ListTodo className="w-4 h-4 opacity-60 text-white" />
       </div>
       <ul className="space-y-3 overflow-y-auto custom-scrollbar flex-1 mb-4 pr-2">
-        {todos.map(task => (
+        {displayTodos.map(task => (
           <li 
             key={task.id} 
             onClick={() => toggleTodo(task.id)}
