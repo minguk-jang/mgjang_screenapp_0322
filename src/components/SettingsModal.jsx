@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useDesktop } from '../context/DesktopContext';
-import { X, UserCog, Power, Calendar, Monitor, ZoomIn, ZoomOut, CheckCircle } from 'lucide-react';
+import { X, UserCog, Power, Calendar, Monitor, ZoomIn, ZoomOut, CheckCircle, Upload } from 'lucide-react';
 
 export default function SettingsModal() {
-  const { isSettingsOpen, toggleSettings, userName, setUserName, weeklySchedule, updateWeeklySchedule, appZoom, setAppZoom } = useDesktop();
+  const { isSettingsOpen, toggleSettings, userName, setUserName, profileImage, setProfileImage, weeklySchedule, updateWeeklySchedule, appZoom, setAppZoom } = useDesktop();
   const [activeTab, setActiveTab] = useState('Profile');
   const [tempUserName, setTempUserName] = useState(userName || "System Admin");
+  const [tempProfileImage, setTempProfileImage] = useState(profileImage);
   const [tempSchedule, setTempSchedule] = useState(weeklySchedule);
   const [toastMessage, setToastMessage] = useState('');
 
@@ -18,7 +19,8 @@ export default function SettingsModal() {
 
   useEffect(() => {
     setTempUserName(userName);
-  }, [userName, isSettingsOpen]);
+    setTempProfileImage(profileImage);
+  }, [userName, profileImage, isSettingsOpen]);
 
   useEffect(() => {
     setTempSchedule(weeklySchedule);
@@ -28,7 +30,18 @@ export default function SettingsModal() {
 
   const handleSaveProfile = () => {
     if (tempUserName.trim()) setUserName(tempUserName.trim());
+    setProfileImage(tempProfileImage);
     showSuccessToast("프로필이 저장되었습니다.");
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setTempProfileImage(event.target.result);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSaveSchedule = () => {
@@ -115,6 +128,27 @@ export default function SettingsModal() {
             {activeTab === 'Profile' && (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <h3 className="text-lg font-semibold text-white">허브 개인 설정</h3>
+                
+                {/* Profile Image Section */}
+                <div className="flex items-center gap-6 bg-black/30 border border-white/10 rounded-xl p-5 shadow-inner">
+                  <div className="relative group">
+                    <img 
+                      src={tempProfileImage || "https://picsum.photos/seed/admin/100/100"} 
+                      alt="Profile Preview" 
+                      className="w-16 h-16 rounded-full border border-white/20 object-cover bg-black/50"
+                    />
+                    <label className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Upload className="w-5 h-5 text-white" />
+                      <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                    </label>
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    <label className="text-xs font-medium text-white/50 uppercase tracking-widest">프로필 사진</label>
+                    <p className="text-[10px] text-white/40">이미지를 클릭하여 새 프로필을 업로드하세요.</p>
+                    <button onClick={() => setTempProfileImage(null)} className="text-[10px] text-red-400 hover:text-red-300 transition-colors mt-1 block">기본 이미지로 초기화</button>
+                  </div>
+                </div>
+
                 <div className="space-y-2">
                   <label className="text-xs font-medium text-white/50 uppercase tracking-widest">표시 이름</label>
                   <input 

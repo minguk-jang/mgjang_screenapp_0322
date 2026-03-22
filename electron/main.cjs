@@ -10,6 +10,7 @@ function createWindow() {
     fullscreen: true,
     frame: false,
     skipTaskbar: true,
+    icon: join(__dirname, 'assets', 'icon.png'),
     type: process.platform === 'darwin' ? 'desktop' : 'normal', // Handle native positioning later for Windows if needed
     webPreferences: {
       preload: join(__dirname, 'preload.cjs'),

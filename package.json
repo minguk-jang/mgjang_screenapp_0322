@@ -27,6 +27,7 @@
       "electron-launcher.cjs"
     ],
     "win": {
+      "icon": "electron/assets/icon.png",
       "target": [
         "nsis",
         "portable"

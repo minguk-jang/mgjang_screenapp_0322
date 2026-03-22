@@ -3,7 +3,7 @@ import { Power, Lock, Unlock, X, Plus } from 'lucide-react';
 import { useDesktop } from '../context/DesktopContext';
 
 export default function Sidebar() {
-  const { userName, clipboardItems, addClipboardItem, removeClipboardItem, isLocked, toggleLock } = useDesktop();
+  const { userName, profileImage, clipboardItems, addClipboardItem, removeClipboardItem, isLocked, toggleLock } = useDesktop();
 
   const [copiedId, setCopiedId] = useState(null);
   const [scratchpadText, setScratchpadText] = useState('');
@@ -27,14 +27,13 @@ export default function Sidebar() {
         {/* User Profile */}
         <div className="flex items-center gap-3 mb-2">
           <img 
-            src="https://picsum.photos/seed/admin/100/100" 
+            src={profileImage || "https://picsum.photos/seed/admin/100/100"} 
             alt="User Avatar" 
-            className="w-10 h-10 rounded-full border border-white/20"
+            className="w-10 h-10 rounded-full border border-white/20 object-cover bg-black/50"
             referrerPolicy="no-referrer"
           />
-          <div>
+          <div className="flex items-center">
             <p className="text-white text-sm font-semibold">{userName}</p>
-            <p className="text-white/40 text-[10px] uppercase tracking-tighter">활성 세션</p>
           </div>
         </div>
         

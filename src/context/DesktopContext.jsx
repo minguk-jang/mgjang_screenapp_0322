@@ -5,6 +5,7 @@ const DesktopContext = createContext();
 export function DesktopProvider({ children }) {
   const [activeFolder, setActiveFolder] = useState(null);
   const [userName, setUserName] = useState("System Admin");
+  const [profileImage, setProfileImage] = useState(null);
   const [clipboardItems, setClipboardItems] = useState([]);
   
   const [todos, setTodos] = useState([]);
@@ -89,6 +90,7 @@ export function DesktopProvider({ children }) {
         }
         
         setUserName(data.userName || "System Admin");
+        setProfileImage(data.profileImage || null);
         setClipboardItems(data.clipboardItems || []);
         setAppZoom(data.appZoom || 1);
       }
@@ -106,7 +108,7 @@ export function DesktopProvider({ children }) {
 
     saveTimeoutRef.current = setTimeout(async () => {
       try {
-        await window.api.saveData({ todos, folders, quickLinks, schedule, weeklySchedule, userName, clipboardItems, lastScheduleDate, appZoom });
+        await window.api.saveData({ todos, folders, quickLinks, schedule, weeklySchedule, userName, profileImage, clipboardItems, lastScheduleDate, appZoom });
         console.log('Data saved successfully');
       } catch (err) {
         console.error('Failed to save data:', err);
@@ -114,7 +116,7 @@ export function DesktopProvider({ children }) {
     }, 1000);
 
     return () => clearTimeout(saveTimeoutRef.current);
-  }, [todos, folders, quickLinks, schedule, weeklySchedule, userName, clipboardItems, lastScheduleDate, appZoom, isLoaded]);
+  }, [todos, folders, quickLinks, schedule, weeklySchedule, userName, profileImage, clipboardItems, lastScheduleDate, appZoom, isLoaded]);
 
   const toggleTodo = (id) => {
     if (isLocked) return;
@@ -195,7 +197,7 @@ export function DesktopProvider({ children }) {
   return (
     <DesktopContext.Provider value={{ 
       activeFolder, toggleFolder, todos, toggleTodo, addTodo, removeTodo, folders, quickLinks, schedule,
-      userName, setUserName, clipboardItems, addClipboardItem, removeClipboardItem,
+      userName, setUserName, profileImage, setProfileImage, clipboardItems, addClipboardItem, removeClipboardItem,
       isSettingsOpen, toggleSettings, isGuidelineOpen, toggleGuideline, isCalendarTodoOpen, toggleCalendarTodo, selectedCalendarDate, addFolder, removeFolder,
       addQuickLink, removeQuickLink, addScheduleItem, removeScheduleItem, updateSchedule,
       weeklySchedule, updateWeeklySchedule,
