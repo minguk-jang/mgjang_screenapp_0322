@@ -11,6 +11,25 @@ export function DesktopProvider({ children }) {
   const [folders, setFolders] = useState([]);
   const [quickLinks, setQuickLinks] = useState([]);
   const [schedule, setSchedule] = useState([]);
+  const defaultWeeklySchedule = {
+    periods: [
+      { name: "1교시", time: "09:00~09:40" },
+      { name: "2교시", time: "09:50~10:30" },
+      { name: "3교시", time: "10:40~11:20" },
+      { name: "4교시", time: "11:30~12:10" },
+      { name: "5교시", time: "13:00~13:40" },
+      { name: "6교시", time: "13:50~14:30" }
+    ],
+    grid: {
+      1: [], // Mon
+      2: [], // Tue
+      3: [], // Wed
+      4: [], // Thu
+      5: []  // Fri
+    }
+  };
+  const [weeklySchedule, setWeeklySchedule] = useState(defaultWeeklySchedule);
+
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
@@ -28,6 +47,7 @@ export function DesktopProvider({ children }) {
         setFolders(data.folders || []);
         setQuickLinks(data.quickLinks || []);
         setSchedule(data.schedule || []);
+        setWeeklySchedule(data.weeklySchedule || defaultWeeklySchedule);
         setUserName(data.userName || "System Admin");
         setClipboardItems(data.clipboardItems || []);
       }
@@ -45,7 +65,7 @@ export function DesktopProvider({ children }) {
 
     saveTimeoutRef.current = setTimeout(async () => {
       try {
-        await window.api.saveData({ todos, folders, quickLinks, schedule, userName, clipboardItems });
+        await window.api.saveData({ todos, folders, quickLinks, schedule, weeklySchedule, userName, clipboardItems });
         console.log('Data saved successfully');
       } catch (err) {
         console.error('Failed to save data:', err);
@@ -53,7 +73,7 @@ export function DesktopProvider({ children }) {
     }, 1000);
 
     return () => clearTimeout(saveTimeoutRef.current);
-  }, [todos, folders, quickLinks, schedule, userName, clipboardItems, isLoaded]);
+  }, [todos, folders, quickLinks, schedule, weeklySchedule, userName, clipboardItems, isLoaded]);
 
   const toggleTodo = (id) => {
     if (isLocked) return;
@@ -120,6 +140,11 @@ export function DesktopProvider({ children }) {
     setSchedule(newSchedule);
   };
 
+  const updateWeeklySchedule = (newWeeklySchedule) => {
+    if (isLocked) return;
+    setWeeklySchedule(newWeeklySchedule);
+  };
+
   // Optionally render a loading state or nothing until data is loaded
   if (!isLoaded) {
     return null;
@@ -131,6 +156,7 @@ export function DesktopProvider({ children }) {
       userName, setUserName, clipboardItems, addClipboardItem, removeClipboardItem,
       isSettingsOpen, toggleSettings, addFolder, removeFolder,
       addQuickLink, removeQuickLink, addScheduleItem, removeScheduleItem, updateSchedule,
+      weeklySchedule, updateWeeklySchedule,
       isLocked, toggleLock
     }}>
       {children}
