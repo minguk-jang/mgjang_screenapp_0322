@@ -56,24 +56,12 @@ export function DesktopProvider({ children }) {
     setActiveFolder(prev => prev === id ? null : id);
   };
 
-  const addFolder = (name) => {
-    setFolders(prev => [...prev, { id: 'folder_' + Date.now(), name, files: [] }]);
+  const addFolder = (folderData) => {
+    setFolders(prev => [...prev, { id: 'folder_' + Date.now(), name: folderData.name, absolutePath: folderData.absolutePath }]);
   };
 
   const removeFolder = (id) => {
     setFolders(prev => prev.filter(f => f.id !== id));
-  };
-
-  const addFileToFolder = (folderId, file) => {
-    setFolders(prev => prev.map(f => 
-      f.id === folderId ? { ...f, files: [...f.files, { ...file, id: 'file_' + Date.now() }] } : f
-    ));
-  };
-
-  const removeFileFromFolder = (folderId, fileId) => {
-    setFolders(prev => prev.map(f => 
-      f.id === folderId ? { ...f, files: f.files.filter(file => file.id !== fileId) } : f
-    ));
   };
 
   const addQuickLink = (link) => {
@@ -104,7 +92,7 @@ export function DesktopProvider({ children }) {
   return (
     <DesktopContext.Provider value={{ 
       activeFolder, toggleFolder, todos, toggleTodo, folders, quickLinks, schedule,
-      isSettingsOpen, toggleSettings, addFolder, removeFolder, addFileToFolder, removeFileFromFolder,
+      isSettingsOpen, toggleSettings, addFolder, removeFolder,
       addQuickLink, removeQuickLink, addScheduleItem, removeScheduleItem, updateSchedule
     }}>
       {children}
