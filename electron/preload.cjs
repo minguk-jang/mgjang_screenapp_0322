@@ -5,5 +5,6 @@ contextBridge.exposeInMainWorld('api', {
   saveData: (data) => ipcRenderer.invoke('save-data', data),
   openItem: (targetPath, isUrl) => ipcRenderer.invoke('open-item', targetPath, isUrl),
   showOpenDialog: (options) => ipcRenderer.invoke('show-open-dialog', options),
-  readDirectory: (folderPath) => ipcRenderer.invoke('read-directory', folderPath)
+  readDirectory: (folderPath) => ipcRenderer.invoke('read-directory', folderPath),
+  quitApp: () => ipcRenderer.send('quit-app')
 });
