@@ -16,6 +16,7 @@ import DesktopSurface from './components/DesktopSurface';
 import Sidebar from './components/Sidebar';
 import SettingsModal from './components/SettingsModal';
 import Schedule from './components/Schedule';
+import MiniCalendar from './components/MiniCalendar';
 import { useDesktop } from './context/DesktopContext';
 import wallpaperImg from './assets/wallpaper.jpg';
 
@@ -66,9 +67,13 @@ export default function App() {
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="z-20 relative"
+          className="z-20 relative flex flex-col justify-between h-full pb-8"
         >
           <Sidebar />
+          
+          <div className="mt-auto">
+            <MiniCalendar />
+          </div>
         </motion.div>
       </div>
 
