@@ -1,21 +1,44 @@
 import { useState, useEffect } from 'react';
 import { useDesktop } from '../context/DesktopContext';
-import { X, UserCog, Power } from 'lucide-react';
+import { X, UserCog, Power, Calendar } from 'lucide-react';
 
 export default function SettingsModal() {
-  const { isSettingsOpen, toggleSettings, userName, setUserName } = useDesktop();
+  const { isSettingsOpen, toggleSettings, userName, setUserName, weeklySchedule, updateWeeklySchedule } = useDesktop();
   const [activeTab, setActiveTab] = useState('Profile');
   const [tempUserName, setTempUserName] = useState(userName || "System Admin");
+  const [tempSchedule, setTempSchedule] = useState(weeklySchedule);
 
   useEffect(() => {
     setTempUserName(userName);
   }, [userName, isSettingsOpen]);
+
+  useEffect(() => {
+    setTempSchedule(weeklySchedule);
+  }, [weeklySchedule, isSettingsOpen]);
 
   if (!isSettingsOpen) return null;
 
   const handleSaveProfile = () => {
     if (tempUserName.trim()) setUserName(tempUserName.trim());
     toggleSettings();
+  };
+
+  const handleSaveSchedule = () => {
+    updateWeeklySchedule(tempSchedule);
+  };
+
+  const handleCellChange = (dayIndex, periodIndex, value) => {
+    setTempSchedule(prev => {
+      const newGrid = { ...prev.grid };
+      const dayData = [...(newGrid[dayIndex] || [])];
+      
+      while(dayData.length <= periodIndex) dayData.push({ subject: '', room: '' });
+      
+      dayData[periodIndex] = { ...dayData[periodIndex], subject: value };
+      newGrid[dayIndex] = dayData;
+      
+      return { ...prev, grid: newGrid };
+    });
   };
 
   const handleQuit = () => {
@@ -26,7 +49,7 @@ export default function SettingsModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xl p-4 transition-all">
-      <div className="glass w-full max-w-lg rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col">
+      <div className="glass w-full max-w-2xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/10 bg-white/5">
           <h2 className="text-xl font-bold text-white tracking-tighter">시스템 설정</h2>
@@ -35,7 +58,7 @@ export default function SettingsModal() {
           </button>
         </div>
 
-        <div className="flex h-[350px]">
+        <div className="flex h-[450px]">
           {/* Internal Sidebar */}
           <div className="w-40 border-r border-white/10 p-4 space-y-2 bg-black/20">
             <button 
@@ -43,6 +66,12 @@ export default function SettingsModal() {
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${activeTab === 'Profile' ? 'bg-white/20 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}
             >
               <UserCog className="w-4 h-4" /> 프로필
+            </button>
+            <button 
+              onClick={() => setActiveTab('Schedule')}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${activeTab === 'Schedule' ? 'bg-white/20 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}
+            >
+              <Calendar className="w-4 h-4" /> 시간표
             </button>
             <button 
               onClick={() => setActiveTab('System')}
@@ -53,7 +82,7 @@ export default function SettingsModal() {
           </div>
 
           {/* Tab Content */}
-          <div className="flex-1 p-8 bg-black/10">
+          <div className="flex-1 p-8 bg-black/10 overflow-hidden">
             {activeTab === 'Profile' && (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <h3 className="text-lg font-semibold text-white">허브 개인 설정</h3>
@@ -68,6 +97,52 @@ export default function SettingsModal() {
                 <button onClick={handleSaveProfile} className="bg-sky-500/20 hover:bg-sky-500/40 text-sky-100 font-medium px-6 py-2 rounded-xl transition-all">
                   저장
                 </button>
+              </div>
+            )}
+
+            {activeTab === 'Schedule' && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300 h-full flex flex-col">
+                <div className="flex justify-between items-center mb-1">
+                  <h3 className="text-lg font-semibold text-white">주간 시간표 관리</h3>
+                  <button onClick={handleSaveSchedule} className="bg-sky-500 hover:bg-sky-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all active:scale-95 shadow-lg">
+                    저장하기
+                  </button>
+                </div>
+                
+                <div className="flex-1 overflow-auto custom-scrollbar bg-black/30 rounded-xl border border-white/10 p-2">
+                  <table className="w-full text-xs text-left border-collapse">
+                    <thead className="sticky top-0 bg-black/80 backdrop-blur-md z-10 w-full">
+                      <tr>
+                        <th className="p-2 border-b border-white/10 text-center w-14 text-white/50 font-medium">교시</th>
+                        {['월', '화', '수', '목', '금'].map(d => <th key={d} className="p-2 border-b border-white/10 text-center text-white/70 font-medium">{d}</th>)}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {tempSchedule?.periods?.map((period, pIdx) => (
+                        <tr key={pIdx} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors">
+                          <td className="p-2 text-center border-r border-white/5 text-white/50 font-medium">
+                            {period.name}
+                            <div className="text-[9px] text-white/30 truncate">{period.time.split('~')[0]}</div>
+                          </td>
+                          {[1,2,3,4,5].map(dIdx => {
+                            const cell = tempSchedule.grid[dIdx]?.[pIdx] || { subject: '' };
+                            return (
+                              <td key={dIdx} className="p-1 border-r border-white/5 last:border-0 relative">
+                                <input 
+                                  type="text" 
+                                  value={cell.subject || ''}
+                                  onChange={e => handleCellChange(dIdx, pIdx, e.target.value)}
+                                  placeholder="미설정"
+                                  className="w-full bg-transparent text-white/90 text-center text-[11px] p-2 focus:outline-none focus:bg-white/10 rounded-lg transition-all placeholder:text-white/20"
+                                />
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
 
