@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Power, Lock, X, Plus } from 'lucide-react';
+import { Power, Lock, Unlock, X, Plus } from 'lucide-react';
 import { useDesktop } from '../context/DesktopContext';
 
 export default function Sidebar() {
-  const { userName, clipboardItems, addClipboardItem, removeClipboardItem } = useDesktop();
+  const { userName, clipboardItems, addClipboardItem, removeClipboardItem, isLocked, toggleLock } = useDesktop();
 
   const [copiedId, setCopiedId] = useState(null);
   const [scratchpadText, setScratchpadText] = useState('');
@@ -56,12 +56,14 @@ export default function Sidebar() {
                 >
                   {copiedId === item.id ? 'Copied! ✅' : item.text}
                 </span>
-                <button 
-                  onClick={() => removeClipboardItem(item.id)}
-                  className="opacity-0 group-hover:opacity-100 text-red-400 hover:bg-red-500/20 p-1 rounded transition-all ml-2"
-                >
-                  <X className="w-3 h-3" />
-                </button>
+                {!isLocked && (
+                  <button 
+                    onClick={() => removeClipboardItem(item.id)}
+                    className="opacity-0 group-hover:opacity-100 text-red-400 hover:bg-red-500/20 p-1 rounded transition-all ml-2"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
               </div>
             ))}
             {(!clipboardItems || clipboardItems.length === 0) && (
@@ -69,22 +71,24 @@ export default function Sidebar() {
             )}
           </div>
 
-          <div className="relative">
-            <input 
-              type="text" 
-              value={newClip}
-              onChange={(e) => setNewClip(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleAddClip()}
-              placeholder="텍스트를 붙여넣거나 입력하세요..."
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:border-white/30 pr-8"
-            />
-            <button 
-              onClick={handleAddClip} 
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/80"
-            >
-              <Plus className="w-3 h-3"/>
-            </button>
-          </div>
+          {!isLocked && (
+            <div className="relative">
+              <input 
+                type="text" 
+                value={newClip}
+                onChange={(e) => setNewClip(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAddClip()}
+                placeholder="텍스트를 붙여넣거나 입력하세요..."
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:border-white/30 pr-8"
+              />
+              <button 
+                onClick={handleAddClip} 
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/80"
+              >
+                <Plus className="w-3 h-3"/>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Scratchpad */}
@@ -93,20 +97,21 @@ export default function Sidebar() {
           <textarea 
             value={scratchpadText}
             onChange={(e) => setScratchpadText(e.target.value)}
-            className="w-full h-24 glass-well rounded-xl text-xs text-white p-3 resize-none focus:ring-1 focus:ring-sky-400/50 focus:bg-white/10 transition-colors focus:outline-none placeholder:text-white/20" 
+            disabled={isLocked}
+            className="w-full h-24 glass-well rounded-xl text-xs text-white p-3 resize-none focus:ring-1 focus:ring-sky-400/50 focus:bg-white/10 transition-colors focus:outline-none placeholder:text-white/20 disabled:opacity-50" 
             placeholder="간단한 메모를 입력하세요..."
           />
         </div>
 
         {/* Footer Actions */}
         <div className="mt-auto flex justify-between pt-4 border-t border-white/5">
-          <button className="flex items-center gap-2 text-white/40 hover:text-red-400 transition-colors">
+          <button onClick={() => window.api.quitApp()} className="flex items-center gap-2 text-white/40 hover:text-red-400 transition-colors">
             <Power className="w-4 h-4" />
             <span className="text-xs">앱 종료</span>
           </button>
-          <button className="flex items-center gap-2 text-white/40 hover:text-white transition-colors">
-            <Lock className="w-4 h-4" />
-            <span className="text-xs">화면 잠금</span>
+          <button onClick={toggleLock} className="flex items-center gap-2 text-white/40 hover:text-white transition-colors">
+            {isLocked ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+            <span className="text-xs">{isLocked ? '잠금 해제' : '화면 잠금'}</span>
           </button>
         </div>
       </div>
