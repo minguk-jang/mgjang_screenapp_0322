@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Lock, Calendar, CheckSquare, FolderSymlink, LayoutGrid, Settings, BookOpen, MonitorPlay, MousePointer2 } from 'lucide-react';
+import { X, Lock, Calendar, CheckSquare, FolderSymlink, LayoutGrid, Settings, BookOpen, MonitorPlay, MousePointer2, ClipboardList } from 'lucide-react';
 import { useDesktop } from '../context/DesktopContext';
 
 const TABS = [
@@ -8,7 +8,7 @@ const TABS = [
   { id: 2, title: '시간표 자동 설정', icon: Calendar },
   { id: 3, title: '할 일 & 스케줄링', icon: CheckSquare },
   { id: 4, title: '라이브 폴더 뷰어', icon: FolderSymlink },
-  { id: 5, title: '독 & 퀵 유틸리티', icon: LayoutGrid },
+  { id: 5, title: '우측 패널 메모장', icon: ClipboardList },
 ];
 
 export default function GuidelineModal() {
@@ -205,20 +205,27 @@ export default function GuidelineModal() {
                   {activeTab === 5 && (
                     <>
                       <div className="p-8 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center gap-6">
-                        <div className="flex items-end gap-2 p-2 bg-white/10 rounded-2xl border border-white/20 h-16 relative w-48 justify-center">
-                          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-pink-500 to-rose-400 opacity-80 hover:-translate-y-2 transition-transform"></div>
-                          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-green-500 to-emerald-400 opacity-80 hover:-translate-y-2 transition-transform"></div>
-                          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-500 to-blue-400 opacity-80 hover:-translate-y-2 transition-transform flex items-center justify-center">
-                            <span className="text-white text-xs">+</span>
+                        <div className="flex flex-col gap-2 p-3 bg-white/10 rounded-2xl border border-white/20 w-48 shrink-0 shadow-lg">
+                          <div className="flex items-center gap-2 mb-1">
+                            <ClipboardList className="w-4 h-4 text-emerald-400" />
+                            <span className="text-xs font-bold text-white">클립보드 & 메모</span>
+                          </div>
+                          <div className="flex bg-black/40 p-2 rounded-lg items-center justify-between border border-white/10 group cursor-pointer hover:bg-black/60 transition-colors">
+                            <span className="text-[10px] text-white/90 truncate mr-2">학생 아이디: test1234</span>
+                            <X className="w-3 h-3 text-white/60 group-hover:text-rose-400" />
+                          </div>
+                          <div className="flex bg-black/40 p-2 rounded-lg items-center justify-between border border-white/10 group cursor-pointer hover:bg-black/60 transition-colors">
+                            <span className="text-[10px] text-white/90 truncate mr-2">학부모님 전화: 010...</span>
+                            <X className="w-3 h-3 text-white/60 group-hover:text-rose-400" />
                           </div>
                         </div>
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold text-white mb-2">하단 독 & 퀵 클립보드</h3>
+                        <h3 className="text-xl font-bold text-white mb-2">사이드 패널 퀵 클립보드 (메모장)</h3>
                         <p className="text-white/70 leading-relaxed">
-                          빠른 접근과 간단한 타이핑은 유틸리티 기능을 적극 활용하세요.<br/><br/>
-                          • <strong>하단 독 (Bottom Dock):</strong> 중앙 하단의 맥북 스타일 독 메뉴에 자주 가는 웹사이트 등 퀵링크를 마음대로 커스텀 추가할 수 있습니다.<br/>
-                          • <strong>메모 (클립보드):</strong> 바탕화면에 있는 포스트잇 기능입니다. 나이스(NEIS)에 붙여넣을 학생 정보나 임시 번호 등을 빠르게 메모하고 빠르게 지워보세요. 
+                          일회성으로 임시 기록해두어야 할 정보들은 우측 사이드 패널 메모 기능을 적극 활용하세요.<br/><br/>
+                          • <strong>우측 패널 배치:</strong> 화면 우측의 사이드 메뉴에 위치하여 바탕화면 공간을 차지하지 않으며 언제든 빠르게 내용을 메모할 수 있습니다.<br/>
+                          • <strong>쉬운 인라인 추가 및 삭제:</strong> 복사한 텍스트 등을 붙여넣고 엔터를 치면 즉시 항목이 추가됩니다. 쓰고 나서 지우고 싶을 땐 항목 우측의 '삭제(X)' 아이콘을 누르면 바로 없어져서 깔끔하게 유지할 수 있습니다.
                         </p>
                       </div>
                     </>
