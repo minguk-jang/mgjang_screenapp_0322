@@ -3,7 +3,7 @@ import { useDesktop } from '../context/DesktopContext';
 import { Calendar, Plus, X, Check } from 'lucide-react';
 
 export default function Schedule() {
-  const { schedule, addScheduleItem, removeScheduleItem } = useDesktop();
+  const { schedule, addScheduleItem, removeScheduleItem, isLocked } = useDesktop();
   const [showAddForm, setShowAddForm] = useState(false);
   const [newClass, setNewClass] = useState({ period: '', time: '', subject: '', room: '' });
 
@@ -33,15 +33,17 @@ export default function Schedule() {
                 <p className="text-xs text-white/50 truncate w-32">{item.room}</p>
               </div>
               
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  removeScheduleItem(item.id);
-                }}
-                className="absolute top-1 right-0 bg-red-500/80 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-red-500 shadow-lg active:scale-95"
-              >
-                <X className="w-3 h-3" />
-              </button>
+              {!isLocked && (
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeScheduleItem(item.id);
+                  }}
+                  className="absolute top-1 right-0 bg-red-500/80 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-red-500 shadow-lg active:scale-95"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              )}
             </div>
           ))
         ) : (
@@ -50,59 +52,61 @@ export default function Schedule() {
       </div>
 
       {/* Inline Direct Manipulation: Add Class Form */}
-      <div className="mt-4 flex-shrink-0 border-t border-white/10 pt-4">
-        {!showAddForm ? (
-          <button 
-            onClick={() => setShowAddForm(true)}
-            className="w-full flex items-center justify-center gap-2 text-xs font-medium text-white/50 hover:text-white/90 transition-all py-2 rounded-xl hover:bg-white/5"
-          >
-            <Plus className="w-4 h-4" /> 일정 추가
-          </button>
-        ) : (
-          <div className="bg-black/20 rounded-xl p-3 border border-white/5 space-y-2 animate-in fade-in slide-in-from-top-2 duration-200 shadow-inner">
-            <div className="flex justify-between items-center mb-1 px-1">
-              <span className="text-[10px] uppercase font-semibold text-white/50 tracking-wider">새 일정</span>
-              <button 
-                onClick={() => setShowAddForm(false)} 
-                className="text-white/40 hover:text-white/80 transition-colors p-1 rounded hover:bg-white/10 active:scale-95"
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
+      {!isLocked && (
+        <div className="mt-4 flex-shrink-0 border-t border-white/10 pt-4">
+          {!showAddForm ? (
+            <button 
+              onClick={() => setShowAddForm(true)}
+              className="w-full flex items-center justify-center gap-2 text-xs font-medium text-white/50 hover:text-white/90 transition-all py-2 rounded-xl hover:bg-white/5"
+            >
+              <Plus className="w-4 h-4" /> 일정 추가
+            </button>
+          ) : (
+            <div className="bg-black/20 rounded-xl p-3 border border-white/5 space-y-2 animate-in fade-in slide-in-from-top-2 duration-200 shadow-inner">
+              <div className="flex justify-between items-center mb-1 px-1">
+                <span className="text-[10px] uppercase font-semibold text-white/50 tracking-wider">새 일정</span>
+                <button 
+                  onClick={() => setShowAddForm(false)} 
+                  className="text-white/40 hover:text-white/80 transition-colors p-1 rounded hover:bg-white/10 active:scale-95"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <input 
+                  type="text" placeholder="교시 (예: 1교시)" 
+                  value={newClass.period} onChange={e => setNewClass({...newClass, period: e.target.value})} 
+                  className="bg-white/5 text-xs text-white px-3 py-2 rounded-lg border border-white/5 focus:outline-none focus:border-white/20 w-full placeholder-white/30" 
+                />
+                <input 
+                  type="text" placeholder="09:00 - 09:50" 
+                  value={newClass.time} onChange={e => setNewClass({...newClass, time: e.target.value})} 
+                  className="bg-white/5 text-xs text-white px-3 py-2 rounded-lg border border-white/5 focus:outline-none focus:border-white/20 w-full placeholder-white/30" 
+                />
+              </div>
               <input 
-                type="text" placeholder="교시 (예: 1교시)" 
-                value={newClass.period} onChange={e => setNewClass({...newClass, period: e.target.value})} 
+                type="text" placeholder="과목/일정명" 
+                value={newClass.subject} onChange={e => setNewClass({...newClass, subject: e.target.value})} 
                 className="bg-white/5 text-xs text-white px-3 py-2 rounded-lg border border-white/5 focus:outline-none focus:border-white/20 w-full placeholder-white/30" 
               />
-              <input 
-                type="text" placeholder="09:00 - 09:50" 
-                value={newClass.time} onChange={e => setNewClass({...newClass, time: e.target.value})} 
-                className="bg-white/5 text-xs text-white px-3 py-2 rounded-lg border border-white/5 focus:outline-none focus:border-white/20 w-full placeholder-white/30" 
-              />
+              <div className="flex gap-2">
+                 <input 
+                   type="text" placeholder="장소" 
+                   value={newClass.room} onChange={e => setNewClass({...newClass, room: e.target.value})} 
+                   onKeyDown={(e) => e.key === 'Enter' && handleAddClass()}
+                   className="bg-white/5 text-xs text-white px-3 py-2 rounded-lg border border-white/5 focus:outline-none focus:border-white/20 flex-1 placeholder-white/30" 
+                 />
+                 <button 
+                   onClick={handleAddClass} 
+                   className="bg-sky-500/20 hover:bg-sky-500/40 text-sky-200 px-4 rounded-lg flex items-center justify-center transition-colors active:scale-95"
+                 >
+                   <Check className="w-4 h-4" />
+                 </button>
+              </div>
             </div>
-            <input 
-              type="text" placeholder="과목/일정명" 
-              value={newClass.subject} onChange={e => setNewClass({...newClass, subject: e.target.value})} 
-              className="bg-white/5 text-xs text-white px-3 py-2 rounded-lg border border-white/5 focus:outline-none focus:border-white/20 w-full placeholder-white/30" 
-            />
-            <div className="flex gap-2">
-               <input 
-                 type="text" placeholder="장소" 
-                 value={newClass.room} onChange={e => setNewClass({...newClass, room: e.target.value})} 
-                 onKeyDown={(e) => e.key === 'Enter' && handleAddClass()}
-                 className="bg-white/5 text-xs text-white px-3 py-2 rounded-lg border border-white/5 focus:outline-none focus:border-white/20 flex-1 placeholder-white/30" 
-               />
-               <button 
-                 onClick={handleAddClass} 
-                 className="bg-sky-500/20 hover:bg-sky-500/40 text-sky-200 px-4 rounded-lg flex items-center justify-center transition-colors active:scale-95"
-               >
-                 <Check className="w-4 h-4" />
-               </button>
-            </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </section>
   );
 }
