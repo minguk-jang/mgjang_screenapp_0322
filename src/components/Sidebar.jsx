@@ -1,23 +1,25 @@
 import { useState } from 'react';
-import { LayoutGrid, Calendar, Power, Lock } from 'lucide-react';
+import { LayoutGrid, Calendar, Power, Lock, X, Plus } from 'lucide-react';
+import { useDesktop } from '../context/DesktopContext';
 
 export default function Sidebar() {
+  const { userName, clipboardItems, addClipboardItem, removeClipboardItem } = useDesktop();
   const [activeTab, setActiveTab] = useState('Dashboard');
   const [copiedId, setCopiedId] = useState(null);
   const [scratchpadText, setScratchpadText] = useState('');
+  const [newClip, setNewClip] = useState('');
 
   const handleCopy = (id, text) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
-    setTimeout(() => {
-      setCopiedId(null);
-    }, 2000);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const clipboardItems = [
-    { id: '1', text: '0x7F2A...99C1' },
-    { id: '2', text: 'academic.neis.go.kr/portal/main' }
-  ];
+  const handleAddClip = () => {
+    if (!newClip.trim()) return;
+    addClipboardItem(newClip.trim());
+    setNewClip('');
+  };
 
   return (
     <aside className="w-72 flex flex-col gap-6">
@@ -31,7 +33,7 @@ export default function Sidebar() {
             referrerPolicy="no-referrer"
           />
           <div>
-            <p className="text-white text-sm font-semibold">System Admin</p>
+            <p className="text-white text-sm font-semibold">{userName}</p>
             <p className="text-white/40 text-[10px] uppercase tracking-tighter">Active Session</p>
           </div>
         </div>
@@ -58,34 +60,59 @@ export default function Sidebar() {
         </div>
 
         {/* Quick Clipboard */}
-        <div className="mt-4 pt-6 border-t border-white/5">
+        <div className="mt-4 pt-6 border-t border-white/5 flex flex-col flex-1 h-full max-h-[40vh]">
           <h3 className="text-on-surface font-semibold text-xs opacity-60 uppercase tracking-widest mb-4">Quick Clipboard</h3>
-          <div className="glass-well rounded-xl p-4 space-y-3 relative overflow-hidden">
-            {clipboardItems.map(item => (
+          
+          <div className="glass-well rounded-xl p-3 space-y-2 relative overflow-y-auto custom-scrollbar flex-1 mb-3">
+            {clipboardItems && clipboardItems.map(item => (
               <div 
-                key={item.id}
-                onClick={() => handleCopy(item.id, item.text)}
-                className={`text-[11px] p-2 rounded transition-all duration-300 flex items-center justify-center cursor-pointer border ${
-                  copiedId === item.id 
-                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.2)] scale-105' 
-                    : 'text-white/70 bg-white/5 border-white/5 hover:bg-white/10 hover:text-white'
-                }`}
+                key={item.id} 
+                className="group relative flex items-center justify-between text-[11px] p-2 rounded border text-white/70 bg-white/5 border-white/5 hover:bg-white/10 transition-colors"
               >
-                <span className="truncate w-full text-center">
+                <span 
+                  onClick={() => handleCopy(item.id, item.text)}
+                  className="truncate w-full cursor-pointer"
+                >
                   {copiedId === item.id ? 'Copied! ✅' : item.text}
                 </span>
+                <button 
+                  onClick={() => removeClipboardItem(item.id)}
+                  className="opacity-0 group-hover:opacity-100 text-red-400 hover:bg-red-500/20 p-1 rounded transition-all ml-2"
+                >
+                  <X className="w-3 h-3" />
+                </button>
               </div>
             ))}
+            {(!clipboardItems || clipboardItems.length === 0) && (
+              <div className="text-white/30 text-xs text-center py-4">Empty clipboard.</div>
+            )}
+          </div>
+
+          <div className="relative">
+            <input 
+              type="text" 
+              value={newClip}
+              onChange={(e) => setNewClip(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleAddClip()}
+              placeholder="Paste or type new clip..."
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:border-white/30 pr-8"
+            />
+            <button 
+              onClick={handleAddClip} 
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/80"
+            >
+              <Plus className="w-3 h-3"/>
+            </button>
           </div>
         </div>
 
         {/* Scratchpad */}
-        <div className="mt-4">
+        <div className="mt-4 border-t border-white/5 pt-4">
           <h3 className="text-on-surface font-semibold text-xs opacity-60 uppercase tracking-widest mb-4">Scratchpad</h3>
           <textarea 
             value={scratchpadText}
             onChange={(e) => setScratchpadText(e.target.value)}
-            className="w-full h-32 glass-well rounded-xl text-xs text-white p-3 resize-none focus:ring-1 focus:ring-sky-400/50 focus:bg-white/10 transition-colors focus:outline-none placeholder:text-white/20" 
+            className="w-full h-24 glass-well rounded-xl text-xs text-white p-3 resize-none focus:ring-1 focus:ring-sky-400/50 focus:bg-white/10 transition-colors focus:outline-none placeholder:text-white/20" 
             placeholder="Type quick notes here..."
           />
         </div>
