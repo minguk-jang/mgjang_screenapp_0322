@@ -19,11 +19,12 @@ import Sidebar from './components/Sidebar';
 import SettingsModal from './components/SettingsModal';
 import Schedule from './components/Schedule';
 import { useDesktop } from './context/DesktopContext';
+import wallpaperImg from './assets/wallpaper.jpg';
 
 const TopNav = () => {
   const { toggleSettings } = useDesktop();
   return (
-    <header className="fixed top-0 left-0 w-full h-16 px-12 flex justify-between items-center bg-black/15 backdrop-blur-3xl z-40">
+    <header className="fixed top-0 left-0 w-full h-16 px-12 flex justify-between items-center bg-black/50 backdrop-blur-3xl z-40">
       <div className="text-xl font-bold text-white tracking-tighter">Ethereal Desktop</div>
       <nav className="flex gap-8">
         <a className="text-white border-b-2 border-white/50 pb-1" href="#">Files</a>
@@ -45,7 +46,7 @@ export default function App() {
       {/* Background Wallpaper */}
       <div 
         className="absolute inset-0 bg-cover bg-center z-0"
-        style={{ backgroundImage: 'url("https://picsum.photos/seed/ethereal/1920/1080?blur=4")' }}
+        style={{ backgroundImage: `url(${wallpaperImg})` }}
       />
       <div className="absolute inset-0 bg-black/20 z-1" />
 

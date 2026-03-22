@@ -7,3 +7,14 @@ html, body, #root {
   height: 100%;
   overflow: hidden;
 }
+
+@layer utilities {
+  .glass {
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(24px);
+  }
+  .glass-well {
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(24px);
+  }
+}

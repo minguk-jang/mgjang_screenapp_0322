@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDesktop } from '../context/DesktopContext';
-import { Folder, FolderOpen, FileText, Image as ImageIcon, FileSpreadsheet, File, FolderPlus, X } from 'lucide-react';
+import { Folder, FolderOpen, FileText, Image as ImageIcon, FileSpreadsheet, File, FolderPlus, X, Link2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 const DesktopIcon = ({ icon: Icon, label, color = "text-white/90", className = "", onClick, onRemove }) => (
@@ -21,10 +21,12 @@ const DesktopIcon = ({ icon: Icon, label, color = "text-white/90", className = "
 );
 
 export default function DesktopSurface() {
-  const { folders, activeFolder, toggleFolder, addFolder, removeFolder } = useDesktop();
+  const { folders, activeFolder, toggleFolder, addFolder, removeFolder, quickLinks, addQuickLink, removeQuickLink } = useDesktop();
   const [selectedFile, setSelectedFile] = useState(null);
   const [errorFile, setErrorFile] = useState(null);
   const [currentFolderContents, setCurrentFolderContents] = useState([]);
+  const [showAddWebLink, setShowAddWebLink] = useState(false);
+  const [newWebLink, setNewWebLink] = useState({ name: '', url: '' });
   
   const activeFolderData = folders.find(f => f.id === activeFolder);
 
@@ -62,6 +64,13 @@ export default function DesktopSurface() {
     }
   };
 
+  const handleAddWebLink = () => {
+    if (!newWebLink.name || !newWebLink.url) return;
+    addQuickLink({ ...newWebLink, icon: 'Globe' });
+    setNewWebLink({ name: '', url: '' });
+    setShowAddWebLink(false);
+  };
+
   return (
     <div className="flex-grow relative mx-12 h-full">
       <motion.div
@@ -80,6 +89,23 @@ export default function DesktopSurface() {
               color={activeFolder === folder.id ? "text-sky-300" : "text-white/90"}
               onClick={() => toggleFolder(folder.id)} 
               onRemove={() => removeFolder(folder.id)}
+            />
+          ))}
+          {quickLinks.map(link => (
+            <DesktopIcon 
+              key={link.id}
+              icon={Link2} 
+              label={link.name} 
+              color="text-emerald-300"
+              onClick={async () => {
+                const urlToOpen = link.url;
+                const success = await window.api.openItem(urlToOpen, true);
+                if (!success) {
+                  setErrorFile(link.id);
+                  setTimeout(() => setErrorFile(null), 1500);
+                }
+              }}
+              onRemove={() => removeQuickLink(link.id)}
             />
           ))}
         </div>
@@ -120,13 +146,46 @@ export default function DesktopSurface() {
 
       {/* Floating Action Bar (Direct Manipulation) */}
       <div className="absolute bottom-10 right-10 flex flex-col items-end gap-4 z-50">
+        {showAddWebLink && (
+          <div className="glass rounded-2xl p-4 shadow-2xl border border-white/10 mb-2 w-64 animate-in fade-in slide-in-from-bottom-2 duration-200">
+            <h3 className="text-white/80 text-xs font-semibold uppercase tracking-wider mb-3">Add Web Link</h3>
+            <div className="space-y-3">
+              <input 
+                type="text" placeholder="Name (e.g., Notion)" 
+                value={newWebLink.name} onChange={e => setNewWebLink({...newWebLink, name: e.target.value})}
+                autoFocus
+                className="w-full bg-black/20 border border-white/5 rounded-xl px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-white/30 transition-colors"
+              />
+              <input 
+                type="text" placeholder="URL (https://...)" 
+                value={newWebLink.url} onChange={e => setNewWebLink({...newWebLink, url: e.target.value})}
+                onKeyDown={(e) => e.key === 'Enter' && handleAddWebLink()}
+                className="w-full bg-black/20 border border-white/5 rounded-xl px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-white/30 transition-colors"
+              />
+              <button 
+                onClick={handleAddWebLink}
+                className="w-full bg-white/10 hover:bg-white/20 text-white text-sm py-2 rounded-xl transition-all font-medium mt-1 active:scale-95"
+              >
+                Add Link
+              </button>
+            </div>
+          </div>
+        )}
+        
         <div className="glass rounded-full shadow-2xl border border-white/10 p-2 flex gap-2">
+          <button 
+            onClick={() => setShowAddWebLink(!showAddWebLink)}
+            className="flex items-center gap-2 px-4 py-3 rounded-full transition-all duration-300 text-sm font-medium bg-white/5 text-white/70 hover:bg-white/20 hover:text-white group"
+          >
+            <Link2 className="w-5 h-5" /> 
+            <span className="hidden group-hover:block transition-all pr-1">Add Web Link</span>
+          </button>
           <button 
             onClick={handleLinkFolder}
             className="flex items-center gap-2 px-4 py-3 rounded-full transition-all duration-300 text-sm font-medium bg-white/5 text-white/70 hover:bg-white/20 hover:text-white group"
           >
             <FolderPlus className="w-5 h-5" /> 
-            <span className="hidden group-hover:block transition-all pr-1">Link Local Folder</span>
+            <span className="hidden group-hover:block transition-all pr-1">Link Folder</span>
           </button>
         </div>
       </div>
