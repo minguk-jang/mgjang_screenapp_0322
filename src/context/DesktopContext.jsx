@@ -8,8 +8,12 @@ export function DesktopProvider({ children }) {
   const [todos, setTodos] = useState([]);
   const [folders, setFolders] = useState([]);
   const [quickLinks, setQuickLinks] = useState([]);
+  const [schedule, setSchedule] = useState([]);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const saveTimeoutRef = useRef(null);
+
+  const toggleSettings = () => setIsSettingsOpen(prev => !prev);
 
   useEffect(() => {
     const initializeData = async () => {
@@ -18,6 +22,7 @@ export function DesktopProvider({ children }) {
         setTodos(data.todos || []);
         setFolders(data.folders || []);
         setQuickLinks(data.quickLinks || []);
+        setSchedule(data.schedule || []);
       }
       setIsLoaded(true);
     };
@@ -33,7 +38,7 @@ export function DesktopProvider({ children }) {
 
     saveTimeoutRef.current = setTimeout(async () => {
       try {
-        await window.api.saveData({ todos, folders, quickLinks });
+        await window.api.saveData({ todos, folders, quickLinks, schedule });
         console.log('Data saved successfully');
       } catch (err) {
         console.error('Failed to save data:', err);
@@ -41,7 +46,7 @@ export function DesktopProvider({ children }) {
     }, 1000);
 
     return () => clearTimeout(saveTimeoutRef.current);
-  }, [todos, folders, quickLinks, isLoaded]);
+  }, [todos, folders, quickLinks, schedule, isLoaded]);
 
   const toggleTodo = (id) => {
     setTodos(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
@@ -51,13 +56,57 @@ export function DesktopProvider({ children }) {
     setActiveFolder(prev => prev === id ? null : id);
   };
 
+  const addFolder = (name) => {
+    setFolders(prev => [...prev, { id: 'folder_' + Date.now(), name, files: [] }]);
+  };
+
+  const removeFolder = (id) => {
+    setFolders(prev => prev.filter(f => f.id !== id));
+  };
+
+  const addFileToFolder = (folderId, file) => {
+    setFolders(prev => prev.map(f => 
+      f.id === folderId ? { ...f, files: [...f.files, { ...file, id: 'file_' + Date.now() }] } : f
+    ));
+  };
+
+  const removeFileFromFolder = (folderId, fileId) => {
+    setFolders(prev => prev.map(f => 
+      f.id === folderId ? { ...f, files: f.files.filter(file => file.id !== fileId) } : f
+    ));
+  };
+
+  const addQuickLink = (link) => {
+    setQuickLinks(prev => [...prev, { ...link, id: 'link_' + Date.now() }]);
+  };
+
+  const removeQuickLink = (id) => {
+    setQuickLinks(prev => prev.filter(l => l.id !== id));
+  };
+
+  const addScheduleItem = (item) => {
+    setSchedule(prev => [...prev, { ...item, id: 'sched_' + Date.now() }]);
+  };
+
+  const removeScheduleItem = (id) => {
+    setSchedule(prev => prev.filter(s => s.id !== id));
+  };
+
+  const updateSchedule = (newSchedule) => {
+    setSchedule(newSchedule);
+  };
+
   // Optionally render a loading state or nothing until data is loaded
   if (!isLoaded) {
     return null;
   }
 
   return (
-    <DesktopContext.Provider value={{ activeFolder, toggleFolder, todos, toggleTodo, folders, quickLinks }}>
+    <DesktopContext.Provider value={{ 
+      activeFolder, toggleFolder, todos, toggleTodo, folders, quickLinks, schedule,
+      isSettingsOpen, toggleSettings, addFolder, removeFolder, addFileToFolder, removeFileFromFolder,
+      addQuickLink, removeQuickLink, addScheduleItem, removeScheduleItem, updateSchedule
+    }}>
       {children}
     </DesktopContext.Provider>
   );

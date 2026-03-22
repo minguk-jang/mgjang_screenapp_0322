@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useDesktop } from '../context/DesktopContext';
 import { Folder, FolderOpen, FileText, Image as ImageIcon, FileSpreadsheet, File } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -13,6 +14,8 @@ const DesktopIcon = ({ icon: Icon, label, color = "text-white/90", className = "
 
 export default function DesktopSurface() {
   const { folders, activeFolder, toggleFolder } = useDesktop();
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [errorFile, setErrorFile] = useState(null);
   const activeFolderData = folders.find(f => f.id === activeFolder);
 
   const getFileIcon = (type) => {
@@ -50,11 +53,26 @@ export default function DesktopSurface() {
           {activeFolderData && (
             <div className="glass rounded-3xl p-10 shadow-2xl flex flex-wrap gap-12 w-[600px] border border-white/10">
               {activeFolderData.files.map(file => (
-                <div key={file.id} className="group cursor-pointer flex flex-col items-center gap-3 hover:scale-105 transition-transform">
-                  <div className="w-16 h-16 bg-white/5 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/10 group-hover:bg-white/10">
+                <div 
+                  key={file.id} 
+                  className={`group cursor-pointer flex flex-col items-center gap-3 hover:scale-105 transition-all p-2 rounded-xl border border-transparent ${selectedFile === file.id ? 'bg-white/20 border-white/20 shadow-inner' : ''}`}
+                  onClick={() => setSelectedFile(file.id)}
+                  onDoubleClick={async () => {
+                    // Try to open with actual path, fallback to something reliably erroneous if undefined
+                    const filePath = file.path || 'C:\\path\\does\\not\\exist'; 
+                    const success = await window.api.openItem(filePath, false);
+                    if (!success) {
+                      setErrorFile(file.id);
+                      setTimeout(() => setErrorFile(null), 1500);
+                    }
+                  }}
+                >
+                  <div className={`w-16 h-16 bg-white/5 backdrop-blur-md rounded-2xl flex items-center justify-center border transition-colors ${errorFile === file.id ? 'border-red-400 bg-red-500/20' : 'border-white/10 group-hover:bg-white/10'}`}>
                     {getFileIcon(file.type)}
                   </div>
-                  <span className="text-xs text-white/80 group-hover:text-white drop-shadow-md w-20 text-center truncate">{file.name}</span>
+                  <span className={`text-xs drop-shadow-md w-20 text-center truncate ${errorFile === file.id ? 'text-red-300 font-bold' : 'text-white/80 group-hover:text-white'}`}>
+                    {errorFile === file.id ? "Not Found" : file.name}
+                  </span>
                 </div>
               ))}
             </div>

@@ -1,9 +1,6 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-import fs from 'fs/promises';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron');
+const { join, dirname } = require('path');
+const fs = require('fs/promises');
 
 const DATA_FILE = 'hub-data.json';
 const TEMP_FILE = 'hub-data.tmp';
@@ -15,7 +12,7 @@ function createWindow() {
     skipTaskbar: true,
     type: process.platform === 'darwin' ? 'desktop' : 'normal', // Handle native positioning later for Windows if needed
     webPreferences: {
-      preload: join(__dirname, 'preload.js'),
+      preload: join(__dirname, 'preload.cjs'),
       contextIsolation: true,
       nodeIntegration: false,
     }
@@ -57,6 +54,38 @@ app.whenReady().then(() => {
     } catch (error) {
       console.error('Failed to save desktop data:', error);
       return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle('open-item', async (event, targetPath, isUrl = false) => {
+    try {
+      if (isUrl) {
+        await shell.openExternal(targetPath);
+        return true;
+      } else {
+        const error = await shell.openPath(targetPath);
+        if (error) {
+          console.error(`Failed to open path ${targetPath}:`, error);
+          return false;
+        }
+        return true;
+      }
+    } catch (error) {
+      console.error(`Error opening item ${targetPath}:`, error);
+      return false;
+    }
+  });
+
+  ipcMain.handle('show-open-dialog', async (event, options) => {
+    try {
+      const result = await dialog.showOpenDialog(options);
+      if (!result.canceled && result.filePaths.length > 0) {
+        return result.filePaths[0];
+      }
+      return null;
+    } catch (error) {
+      console.error('Failed to show open dialog:', error);
+      return null;
     }
   });
 
