@@ -89,6 +89,35 @@ app.whenReady().then(() => {
     }
   });
 
+  ipcMain.handle('read-directory', async (event, folderPath) => {
+    try {
+      const entries = await fs.readdir(folderPath, { withFileTypes: true });
+      return entries.map(entry => {
+        const isDirectory = entry.isDirectory();
+        let type = 'other';
+        if (isDirectory) {
+          type = 'folder';
+        } else {
+          const ext = entry.name.split('.').pop().toLowerCase();
+          if (ext === 'pdf') type = 'pdf';
+          else if (['doc', 'docx'].includes(ext)) type = 'word';
+          else if (['xls', 'xlsx', 'csv'].includes(ext)) type = 'excel';
+          else if (['png', 'jpg', 'jpeg', 'gif'].includes(ext)) type = 'image';
+        }
+        return {
+          id: entry.name,
+          name: entry.name,
+          path: join(folderPath, entry.name),
+          isDirectory,
+          type
+        };
+      });
+    } catch (error) {
+      console.error('Failed to read directory:', error);
+      return [];
+    }
+  });
+
   createWindow();
 
   app.on('activate', () => {
