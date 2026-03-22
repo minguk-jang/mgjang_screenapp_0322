@@ -9,7 +9,8 @@ import {
   Calendar, 
   LayoutGrid, 
   Power, 
-  Lock 
+  Lock,
+  BookOpen
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import ToDo from './components/ToDo';
@@ -17,13 +18,14 @@ import DesktopSurface from './components/DesktopSurface';
 import Sidebar from './components/Sidebar';
 import SettingsModal from './components/SettingsModal';
 import CalendarTodoModal from './components/CalendarTodoModal';
+import GuidelineModal from './components/GuidelineModal';
 import Schedule from './components/Schedule';
 import MiniCalendar from './components/MiniCalendar';
 import { useDesktop } from './context/DesktopContext';
 import wallpaperImg from './assets/wallpaper.jpg';
 
 const TopNav = () => {
-  const { toggleSettings, schedule } = useDesktop();
+  const { toggleSettings, toggleGuideline, schedule } = useDesktop();
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
@@ -66,6 +68,7 @@ const TopNav = () => {
         )}
       </nav>
       <div className="flex items-center gap-6">
+        <BookOpen onClick={toggleGuideline} className="w-5 h-5 text-white/60 cursor-pointer hover:text-white hover:-translate-y-1 hover:bg-white/10 p-1 box-content rounded-xl transition-all duration-300" />
         <Settings onClick={toggleSettings} className="w-5 h-5 text-white/60 cursor-pointer hover:text-white hover:rotate-90 hover:bg-white/10 p-1 box-content rounded-xl transition-all duration-300" />
       </div>
     </header>
@@ -136,6 +139,7 @@ export default function App() {
 
       <SettingsModal />
       <CalendarTodoModal />
+      <GuidelineModal />
     </main>
     </>
   );

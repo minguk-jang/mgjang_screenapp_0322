@@ -34,6 +34,7 @@ export function DesktopProvider({ children }) {
 
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isGuidelineOpen, setIsGuidelineOpen] = useState(false);
   const [isCalendarTodoOpen, setIsCalendarTodoOpen] = useState(false);
   const [selectedCalendarDate, setSelectedCalendarDate] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
@@ -43,6 +44,7 @@ export function DesktopProvider({ children }) {
   const toggleLock = () => setIsLocked(prev => !prev);
 
   const toggleSettings = () => setIsSettingsOpen(prev => !prev);
+  const toggleGuideline = () => setIsGuidelineOpen(prev => !prev);
   
   const toggleCalendarTodo = (date = "") => {
     if (date) setSelectedCalendarDate(date);
@@ -194,7 +196,7 @@ export function DesktopProvider({ children }) {
     <DesktopContext.Provider value={{ 
       activeFolder, toggleFolder, todos, toggleTodo, addTodo, removeTodo, folders, quickLinks, schedule,
       userName, setUserName, clipboardItems, addClipboardItem, removeClipboardItem,
-      isSettingsOpen, toggleSettings, isCalendarTodoOpen, toggleCalendarTodo, selectedCalendarDate, addFolder, removeFolder,
+      isSettingsOpen, toggleSettings, isGuidelineOpen, toggleGuideline, isCalendarTodoOpen, toggleCalendarTodo, selectedCalendarDate, addFolder, removeFolder,
       addQuickLink, removeQuickLink, addScheduleItem, removeScheduleItem, updateSchedule,
       weeklySchedule, updateWeeklySchedule,
       isLocked, toggleLock,
