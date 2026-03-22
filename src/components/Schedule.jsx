@@ -32,7 +32,7 @@ export default function Schedule() {
           schedule.map((item, index) => (
             <div key={item.id || index} className="flex gap-4 items-start relative group pr-6">
               <div className="flex flex-col items-center w-12 text-center pt-1 flex-shrink-0">
-                <span className="text-[11px] text-sky-200/90 font-mono tracking-tighter">{item.time.split('~')[0]}</span>
+                <span className="text-[11px] text-sky-200/90 font-mono tracking-tighter">{item.time.split(/~|-/)[0].trim()}</span>
                 <span className="text-[9px] text-white/40 mt-1 uppercase">{item.period}</span>
               </div>
               <div className={`flex-1 ${index > 0 ? "border-l-2 border-white/10 pl-4" : "border-l-2 border-transparent pl-4"}`}>

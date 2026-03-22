@@ -122,7 +122,7 @@ export default function SettingsModal() {
                         <tr key={pIdx} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors">
                           <td className="p-2 text-center border-r border-white/5 text-white/50 font-medium">
                             {period.name}
-                            <div className="text-[9px] text-white/30 truncate">{period.time.split('~')[0]}</div>
+                            <div className="text-[9px] text-white/30 truncate">{period.time.split(/~|-/)[0].trim()}</div>
                           </td>
                           {[1,2,3,4,5].map(dIdx => {
                             const cell = tempSchedule.grid[dIdx]?.[pIdx] || { subject: '' };

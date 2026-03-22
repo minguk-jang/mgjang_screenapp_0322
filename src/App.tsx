@@ -41,7 +41,7 @@ const TopNav = () => {
   if (schedule && schedule.length > 0) {
     for (const item of schedule) {
       if (!item || !item.time) continue;
-      const times = item.time.split('~');
+      const times = item.time.split(/~|-/);
       if (times.length === 2) {
         if (currentTimeStr >= times[0].trim() && currentTimeStr <= times[1].trim()) {
            currentBlock = `현재: ${item.period} ${item.subject}`;
