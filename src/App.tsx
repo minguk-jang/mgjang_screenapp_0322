@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import React, { useState, useEffect } from 'react';
 import { 
   Settings, 
   Calendar, 
@@ -21,15 +22,52 @@ import { useDesktop } from './context/DesktopContext';
 import wallpaperImg from './assets/wallpaper.jpg';
 
 const TopNav = () => {
-  const { toggleSettings } = useDesktop();
+  const { toggleSettings, weeklySchedule } = useDesktop();
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    // Update time every minute
+    const timer = setInterval(() => setNow(new Date()), 60000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+  const currentDayStr = weekdays[now.getDay()];
+  const dateStr = `${now.getFullYear()}. ${String(now.getMonth() + 1).padStart(2, '0')}. ${String(now.getDate()).padStart(2, '0')}. (${currentDayStr}) ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+  let currentBlock = null;
+  const dayIndex = now.getDay();
+  if (dayIndex >= 1 && dayIndex <= 5 && weeklySchedule?.grid) {
+    const daySchedule = weeklySchedule.grid[dayIndex] || [];
+    const currentTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    
+    for (let i = 0; i < weeklySchedule.periods.length; i++) {
+      const period = weeklySchedule.periods[i];
+      const times = period.time.split('~');
+      if (times.length === 2 && daySchedule[i] && daySchedule[i].subject) {
+        if (currentTimeStr >= times[0].trim() && currentTimeStr <= times[1].trim()) {
+           currentBlock = `현재: ${period.name} ${daySchedule[i].subject}`;
+           break;
+        }
+      }
+    }
+  }
+
   return (
-    <header className="fixed top-0 left-0 w-full h-16 px-12 flex justify-between items-center bg-black/50 backdrop-blur-3xl z-40">
-      <div className="text-xl font-bold text-white tracking-tighter">쭈의 일터</div>
-      <nav className="flex gap-8">
-        <a className="text-white border-b-2 border-white/50 pb-1" href="#">Workspace</a>
+    <header className="fixed top-0 left-0 w-full h-16 px-12 flex justify-between items-center bg-black/40 backdrop-blur-2xl border-b border-white/5 z-40">
+      <div className="text-xl font-bold text-white tracking-tighter drop-shadow-md">쭈의 일터</div>
+      <nav className="flex items-center gap-4">
+        <span className="text-white/90 text-sm font-medium tracking-wider bg-white/5 px-4 py-1.5 rounded-full border border-white/10 shadow-inner">
+          {dateStr}
+        </span>
+        {currentBlock && (
+          <span className="text-sky-100 text-[13px] font-bold tracking-wide bg-sky-500/40 px-4 py-1.5 rounded-full border border-sky-400/50 animate-pulse shadow-[0_0_15px_rgba(14,165,233,0.4)]">
+            {currentBlock}
+          </span>
+        )}
       </nav>
       <div className="flex items-center gap-6">
-        <Settings onClick={toggleSettings} className="w-5 h-5 text-white/80 cursor-pointer hover:bg-white/10 rounded-lg transition-all" />
+        <Settings onClick={toggleSettings} className="w-5 h-5 text-white/60 cursor-pointer hover:text-white hover:rotate-90 hover:bg-white/10 p-1 box-content rounded-xl transition-all duration-300" />
       </div>
     </header>
   );
