@@ -22,7 +22,7 @@ import { useDesktop } from './context/DesktopContext';
 import wallpaperImg from './assets/wallpaper.jpg';
 
 const TopNav = () => {
-  const { toggleSettings, weeklySchedule } = useDesktop();
+  const { toggleSettings, schedule } = useDesktop();
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
@@ -36,17 +36,15 @@ const TopNav = () => {
   const dateStr = `${now.getFullYear()}. ${String(now.getMonth() + 1).padStart(2, '0')}. ${String(now.getDate()).padStart(2, '0')}. (${currentDayStr}) ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
   let currentBlock = null;
-  const dayIndex = now.getDay();
-  if (dayIndex >= 1 && dayIndex <= 5 && weeklySchedule?.grid) {
-    const daySchedule = weeklySchedule.grid[dayIndex] || [];
-    const currentTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    
-    for (let i = 0; i < weeklySchedule.periods.length; i++) {
-      const period = weeklySchedule.periods[i];
-      const times = period.time.split('~');
-      if (times.length === 2 && daySchedule[i] && daySchedule[i].subject) {
+  const currentTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  
+  if (schedule && schedule.length > 0) {
+    for (const item of schedule) {
+      if (!item || !item.time) continue;
+      const times = item.time.split('~');
+      if (times.length === 2) {
         if (currentTimeStr >= times[0].trim() && currentTimeStr <= times[1].trim()) {
-           currentBlock = `현재: ${period.name} ${daySchedule[i].subject}`;
+           currentBlock = `현재: ${item.period} ${item.subject}`;
            break;
         }
       }
@@ -100,18 +98,15 @@ export default function App() {
         {/* Center: Desktop Icons */}
         <DesktopSurface />
 
-        {/* Right Column: Sidebar */}
+        {/* Right Column: Sidebar & MiniCalendar */}
         <motion.div
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="z-20 relative flex flex-col justify-between h-full pb-8"
+          className="z-20 relative flex flex-col gap-8 w-80"
         >
           <Sidebar />
-          
-          <div className="mt-auto">
-            <MiniCalendar />
-          </div>
+          <MiniCalendar />
         </motion.div>
       </div>
 

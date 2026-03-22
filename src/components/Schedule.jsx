@@ -1,48 +1,114 @@
+import { useState } from 'react';
 import { useDesktop } from '../context/DesktopContext';
-import { Calendar } from 'lucide-react';
+import { Calendar, Plus, X, Check } from 'lucide-react';
 
 export default function Schedule() {
-  const { weeklySchedule } = useDesktop();
-  
+  const { schedule, addScheduleItem, removeScheduleItem, isLocked } = useDesktop();
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newClass, setNewClass] = useState({ period: '', time: '', subject: '', room: '' });
+
+  const handleAddClass = () => {
+    if (!newClass.subject || !newClass.time) return;
+    addScheduleItem(newClass);
+    setNewClass({ period: '', time: '', subject: '', room: '' });
+    setShowAddForm(false);
+  };
+
   const todayIndex = new Date().getDay();
   const isWeekend = todayIndex === 0 || todayIndex === 6;
-  
-  const todaySchedule = !isWeekend && weeklySchedule?.grid ? weeklySchedule.grid[todayIndex] : [];
-  
-  // Check if there are any actual classes today
-  const hasClasses = todaySchedule && todaySchedule.some(cell => cell && cell.subject && cell.subject.trim() !== '');
 
   return (
     <section className="glass rounded-3xl p-6 w-full shadow-lg border border-white/5 flex flex-col max-h-[50vh]">
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
-        <h2 className="text-white/80 font-semibold text-xs opacity-80 uppercase tracking-widest">오늘의 시간표</h2>
+        <div className="flex flex-col">
+          <h2 className="text-white/80 font-semibold text-xs opacity-80 uppercase tracking-widest leading-tight">오늘의 일정</h2>
+          <span className="text-[9px] text-white/40 mt-1">바탕화면 임시 일정 (다음 날 초기화)</span>
+        </div>
         <Calendar className="w-4 h-4 text-white/60" />
       </div>
-      <div className="space-y-4 pt-2 overflow-y-auto custom-scrollbar flex-1 pr-2">
-        {!isWeekend && hasClasses ? (
-          weeklySchedule.periods.map((period, index) => {
-             const subject = todaySchedule[index]?.subject;
-             if (!subject || subject.trim() === '') return null;
 
-             return (
-              <div key={index} className="flex gap-4 items-start relative group pr-2">
-                <div className="flex flex-col items-center w-12 text-center pt-1 flex-shrink-0">
-                  <span className="text-[11px] text-sky-200/90 font-mono tracking-tighter">{period.time.split('~')[0]}</span>
-                  <span className="text-[9px] text-white/40 mt-1 uppercase">{period.name}</span>
-                </div>
-                <div className={`flex-1 ${index > 0 ? "border-l-2 border-white/10 pl-4" : "border-l-2 border-transparent pl-4"}`}>
-                  <p className="text-[13px] font-medium text-white/90 drop-shadow-md truncate">{subject}</p>
-                </div>
+      <div className="space-y-4 pt-2 overflow-y-auto custom-scrollbar flex-1 pr-2">
+        {schedule && schedule.length > 0 ? (
+          schedule.map((item, index) => (
+            <div key={item.id || index} className="flex gap-4 items-start relative group pr-6">
+              <div className="flex flex-col items-center w-12 text-center pt-1 flex-shrink-0">
+                <span className="text-[11px] text-sky-200/90 font-mono tracking-tighter">{item.time.split('~')[0]}</span>
+                <span className="text-[9px] text-white/40 mt-1 uppercase">{item.period}</span>
               </div>
-            );
-          })
+              <div className={`flex-1 ${index > 0 ? "border-l-2 border-white/10 pl-4" : "border-l-2 border-transparent pl-4"}`}>
+                <p className="text-[13px] font-medium text-white/90 drop-shadow-md truncate">{item.subject}</p>
+              </div>
+              
+              {!isLocked && (
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeScheduleItem(item.id);
+                  }}
+                  className="absolute top-0 right-0 bg-red-500/80 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-red-500 shadow-lg active:scale-95"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              )}
+            </div>
+          ))
         ) : (
           <div className="text-white/40 text-[11px] text-center py-6 flex flex-col items-center gap-2">
              <div className="text-xl mb-1 opacity-50">{isWeekend ? '😴' : '☕'}</div>
-             {isWeekend ? "주말입니다. 푹 쉬세요!" : "오늘 예정된 수업이 없습니다."}
+             {isWeekend ? "주말입니다. 푹 쉬세요!" : "오늘 일정이 비어 있습니다."}
           </div>
         )}
       </div>
+
+      {/* Inline Direct Manipulation: Add Class Form */}
+      {!isLocked && (
+        <div className="mt-4 flex-shrink-0 border-t border-white/10 pt-4">
+          {!showAddForm ? (
+            <button 
+              onClick={() => setShowAddForm(true)}
+              className="w-full flex items-center justify-center gap-2 text-[11px] font-medium text-white/50 hover:text-white/90 transition-all py-2 rounded-xl hover:bg-white/5"
+            >
+              <Plus className="w-3 h-3" /> 일정 추가
+            </button>
+          ) : (
+            <div className="bg-black/20 rounded-xl p-3 border border-white/5 space-y-2 animate-in fade-in slide-in-from-top-2 duration-200 shadow-inner">
+              <div className="flex justify-between items-center mb-1 px-1">
+                <span className="text-[10px] uppercase font-semibold text-white/50 tracking-wider">오늘 일정 추가</span>
+                <button 
+                  onClick={() => setShowAddForm(false)} 
+                  className="text-white/40 hover:text-white/80 transition-colors p-1 rounded hover:bg-white/10 active:scale-95"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <input 
+                  type="text" placeholder="교시 (예: 1교시)" 
+                  value={newClass.period} onChange={e => setNewClass({...newClass, period: e.target.value})} 
+                  className="bg-white/5 text-[11px] text-white px-3 py-2 rounded-lg border border-white/5 focus:outline-none focus:border-white/20 w-full placeholder-white/30" 
+                />
+                <input 
+                  type="text" placeholder="09:00~09:50" 
+                  value={newClass.time} onChange={e => setNewClass({...newClass, time: e.target.value})} 
+                  className="bg-white/5 text-[11px] text-white px-3 py-2 rounded-lg border border-white/5 focus:outline-none focus:border-white/20 w-full placeholder-white/30" 
+                />
+              </div>
+              <input 
+                type="text" placeholder="과목/일정명" 
+                value={newClass.subject} onChange={e => setNewClass({...newClass, subject: e.target.value})} 
+                onKeyDown={(e) => e.key === 'Enter' && handleAddClass()}
+                className="bg-white/5 text-[11px] text-white px-3 py-2 rounded-lg border border-white/5 focus:outline-none focus:border-white/20 w-full placeholder-white/30" 
+              />
+              <button 
+                onClick={handleAddClass} 
+                className="w-full bg-sky-500/20 hover:bg-sky-500/40 text-sky-200 text-[11px] py-2 rounded-lg flex items-center justify-center transition-colors active:scale-95 gap-1"
+              >
+                <Check className="w-3 h-3" /> 추가하기
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </section>
   );
 }

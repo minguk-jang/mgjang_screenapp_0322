@@ -21,14 +21,16 @@ export function DesktopProvider({ children }) {
       { name: "6교시", time: "13:50~14:30" }
     ],
     grid: {
-      1: [], // Mon
-      2: [], // Tue
-      3: [], // Wed
-      4: [], // Thu
-      5: []  // Fri
+      1: [{ subject: '국어', room: '1반' }, { subject: '영어', room: '1반' }, { subject: '수학', room: '1반' }, { subject: '사회', room: '1반' }, { subject: '체육', room: '운동장' }, { subject: '음악', room: '음악실' }], // Mon
+      2: [{ subject: '수학', room: '1반' }, { subject: '과학', room: '과학실' }, { subject: '국어', room: '1반' }, { subject: '미술', room: '미술실' }, { subject: '미술', room: '미술실' }, { subject: '영어', room: '1반' }], // Tue
+      3: [{ subject: '체육', room: '강당' }, { subject: '수학', room: '1반' }, { subject: '창체', room: '1반' }, { subject: '창체', room: '1반' }, { subject: '', room: '' }, { subject: '', room: '' }], // Wed
+      4: [{ subject: '영어', room: '1반' }, { subject: '국어', room: '1반' }, { subject: '실과', room: '실습실' }, { subject: '실과', room: '실습실' }, { subject: '수학', room: '1반' }, { subject: '도덕', room: '1반' }], // Thu
+      5: [{ subject: '과학', room: '과학실' }, { subject: '수학', room: '1반' }, { subject: '국어', room: '1반' }, { subject: '자율', room: '1반' }, { subject: '동아리', room: '1반' }, { subject: '동아리', room: '1반' }]  // Fri
     }
   };
   const [weeklySchedule, setWeeklySchedule] = useState(defaultWeeklySchedule);
+  const [lastScheduleDate, setLastScheduleDate] = useState("");
+
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -46,8 +48,28 @@ export function DesktopProvider({ children }) {
         setTodos(data.todos || []);
         setFolders(data.folders || []);
         setQuickLinks(data.quickLinks || []);
-        setSchedule(data.schedule || []);
-        setWeeklySchedule(data.weeklySchedule || defaultWeeklySchedule);
+        const loadedWeekly = data.weeklySchedule || defaultWeeklySchedule;
+        setWeeklySchedule(loadedWeekly);
+        
+        const todayStr = new Date().toDateString();
+        // If it's a new day, load from weekly template
+        if (data.lastScheduleDate !== todayStr) {
+          const todayIdx = new Date().getDay();
+          const baseGrid = loadedWeekly.grid[todayIdx] || [];
+          const periods = loadedWeekly.periods;
+          
+          const newTodaySchedule = baseGrid.map((cell, idx) => {
+             if (!cell || !cell.subject || cell.subject.trim() === '') return null;
+             return { id: 'sched_' + Date.now() + '_' + idx, period: periods[idx].name, time: periods[idx].time, subject: cell.subject, room: cell.room || '' };
+          }).filter(Boolean);
+          
+          setSchedule(newTodaySchedule);
+          setLastScheduleDate(todayStr);
+        } else {
+          setSchedule(data.schedule || []);
+          setLastScheduleDate(data.lastScheduleDate || todayStr);
+        }
+        
         setUserName(data.userName || "System Admin");
         setClipboardItems(data.clipboardItems || []);
       }
@@ -65,7 +87,7 @@ export function DesktopProvider({ children }) {
 
     saveTimeoutRef.current = setTimeout(async () => {
       try {
-        await window.api.saveData({ todos, folders, quickLinks, schedule, weeklySchedule, userName, clipboardItems });
+        await window.api.saveData({ todos, folders, quickLinks, schedule, weeklySchedule, userName, clipboardItems, lastScheduleDate });
         console.log('Data saved successfully');
       } catch (err) {
         console.error('Failed to save data:', err);
@@ -73,7 +95,7 @@ export function DesktopProvider({ children }) {
     }, 1000);
 
     return () => clearTimeout(saveTimeoutRef.current);
-  }, [todos, folders, quickLinks, schedule, weeklySchedule, userName, clipboardItems, isLoaded]);
+  }, [todos, folders, quickLinks, schedule, weeklySchedule, userName, clipboardItems, lastScheduleDate, isLoaded]);
 
   const toggleTodo = (id) => {
     if (isLocked) return;
